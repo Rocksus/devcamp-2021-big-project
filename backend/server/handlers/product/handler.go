@@ -86,6 +86,16 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 
 func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 	var lastID, limit int
+	var err error
+	vars := mux.Vars(r)
+	lastID, err = strconv.Atoi(vars["lastid"])
+	if err != nil {
+		lastID = 0
+	}
+	limit, err = strconv.Atoi(vars["limit"])
+	if err != nil {
+		limit = 10
+	}
 
 	var resp productResponse
 	row, err := p.ProductDB.Query(getProductQuery, lastID, limit)

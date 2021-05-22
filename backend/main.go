@@ -5,6 +5,7 @@ import (
 	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql/product"
+	"github.com/Rocksus/devcamp-2021-big-project/backend/productmodule"
 	"log"
 	"time"
 )
@@ -20,8 +21,8 @@ func main() {
 	}
 	db := database.GetDatabaseConnection(dbConfig)
 
-	ps := product.NewProductService(db)
-	productResolver := product.NewResolver(ps)
+	pm := productmodule.NewProductModule(db)
+	productResolver := product.NewResolver(pm)
 
 	schemaWrapper := gql.NewSchemaWrapper().
 		WithProductResolver(productResolver)

@@ -1,4 +1,4 @@
-package product
+package productmodule
 
 import (
 	"database/sql"
@@ -6,21 +6,21 @@ import (
 	"log"
 )
 
-type Product struct {
+type Module struct {
 	ProductDB *sql.DB
 }
 
-func NewProductService(db *sql.DB) *Product {
-	return &Product{
+func NewProductModule(db *sql.DB) *Module {
+	return &Module{
 		ProductDB: db,
 	}
 }
 
-func (p *Product) AddProduct(data insertProductRequest) (ProductResponse, error) {
+func (p *Module) AddProduct(data InsertProductRequest) (ProductResponse, error) {
 	var resp ProductResponse
 
 	if err := data.Sanitize(); err != nil {
-		log.Println("[ProductGQL][AddProduct] bad request, err: ", err.Error())
+		log.Println("[ProductModule][AddProduct] bad request, err: ", err.Error())
 		return resp, err
 	}
 
@@ -34,25 +34,18 @@ func (p *Product) AddProduct(data insertProductRequest) (ProductResponse, error)
 		data.PreviewImageURL,
 		data.Slug,
 	).Scan(&id); err != nil {
-		log.Println("[ProductGQL][AddProduct] problem querying to db, err: ", err.Error())
+		log.Println("[ProductModule][AddProduct] problem querying to db, err: ", err.Error())
 		return resp, err
 	}
 
 	resp = ProductResponse{
-		ID:              id,
-		Name:            data.Name,
-		Description:     data.Description,
-		Price:           data.Price,
-		Rating:          data.Rating,
-		ImageURL:        data.ImageURL,
-		PreviewImageURL: data.PreviewImageURL,
-		Slug:            data.Slug,
+		ID: id,
 	}
 
 	return resp, nil
 }
 
-func (p *Product) GetProduct(id int64) (ProductResponse, error) {
+func (p *Module) GetProduct(id int64) (ProductResponse, error) {
 	var resp ProductResponse
 	if err := p.ProductDB.QueryRow(getProductQuery, id).Scan(
 		&resp.Name,
@@ -63,7 +56,7 @@ func (p *Product) GetProduct(id int64) (ProductResponse, error) {
 		&resp.PreviewImageURL,
 		&resp.Slug,
 	); err != nil {
-		log.Println("[ProductGQL][GetProduct] problem querying to db, err: ", err.Error())
+		log.Println("[ProductModule][GetProduct] problem querying to db, err: ", err.Error())
 		return resp, err
 	}
 	resp.ID = id
@@ -71,11 +64,11 @@ func (p *Product) GetProduct(id int64) (ProductResponse, error) {
 	return resp, nil
 }
 
-func (p *Product) GetProductBatch(lastID int64, limit int) ([]ProductResponse, error) {
+func (p *Module) GetProductBatch(lastID int64, limit int) ([]ProductResponse, error) {
 	resp := make([]ProductResponse, 0)
 	rows, err := p.ProductDB.Query(getProductBatchQuery, lastID, limit)
 	if err != nil {
-		log.Println("[ProductGQL][GetProductBatch] problem querying to db, err: ", err.Error())
+		log.Println("[ProductModule][GetProductBatch] problem querying to db, err: ", err.Error())
 		return resp, err
 	}
 	defer rows.Close()
@@ -92,7 +85,7 @@ func (p *Product) GetProductBatch(lastID int64, limit int) ([]ProductResponse, e
 			&rowData.PreviewImageURL,
 			&rowData.Slug,
 		); err != nil {
-			log.Println("[ProductGQL][GetProductBatch] problem with scanning db row, err: ", err.Error())
+			log.Println("[ProductModule][GetProductBatch] problem with scanning db row, err: ", err.Error())
 			return resp, err
 		}
 		resp = append(resp, rowData)
@@ -101,30 +94,26 @@ func (p *Product) GetProductBatch(lastID int64, limit int) ([]ProductResponse, e
 	return resp, nil
 }
 
-func (p *Product) EditProduct(id int64, data editProductRequest) (ProductResponse, error) {
+func (p *Module) UpdateProduct(id int64, data UpdateProductRequest) (ProductResponse, error) {
 	var resp ProductResponse
 
 	query, values := data.BuildQuery(id)
 	res, err := p.ProductDB.Exec(query, values...)
 	if err != nil {
-		log.Println("[ProductGQL][EditProduct] problem querying to db, err: ", err.Error())
+		log.Println("[ProductModule][UpdateProduct] problem querying to db, err: ", err.Error())
 		return resp, err
 	}
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
-		log.Println("[ProductGQL][EditProduct] problem querying to db, err: ", err.Error())
+		log.Println("[ProductModule][UpdateProduct] problem querying to db, err: ", err.Error())
 		return resp, err
 	}
 	if rowsAffected == 0 {
-		log.Println("[ProductGQL][EditProduct] no rows affected in db")
+		log.Println("[ProductModule][UpdateProduct] no rows affected in db")
 		return resp, errors.New("no rows affected in db")
 	}
 
-	resp, err = p.GetProduct(id)
-	if err != nil {
-		log.Println("[ProductGQL][EditProduct] can't get updated data")
-		return resp, err
-	}
-
-	return resp, nil
+	return ProductResponse{
+		ID: id,
+	}, nil
 }

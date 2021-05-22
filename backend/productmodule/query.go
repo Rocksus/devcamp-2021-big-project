@@ -1,4 +1,4 @@
-package product
+package productmodule
 
 const (
 	addProductQuery = `
@@ -45,7 +45,7 @@ const (
 	LIMIT $2
 `
 
-	editProductQuery = `
+	updateProductQuery = `
 	UPDATE
 		product
 	SET

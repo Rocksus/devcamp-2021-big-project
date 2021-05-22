@@ -1,14 +1,15 @@
 package product
 
 import (
+	"github.com/Rocksus/devcamp-2021-big-project/backend/productmodule"
 	"github.com/graphql-go/graphql"
 )
 
 type Resolver struct {
-	p *Product
+	p *productmodule.Module
 }
 
-func NewResolver(p *Product) *Resolver {
+func NewResolver(p *productmodule.Module) *Resolver {
 	return &Resolver{
 		p: p,
 	}
@@ -24,7 +25,7 @@ func (r *Resolver) AddProduct() graphql.FieldResolveFn {
 		previewImageURL, _ := p.Args["previewImageURL"].(string)
 		slug, _ := p.Args["slug"].(string)
 
-		req := insertProductRequest{
+		req := productmodule.InsertProductRequest{
 			Name:            name,
 			Description:     description,
 			Price:           int64(price),
@@ -61,7 +62,7 @@ func (r *Resolver) GetProductBatch() graphql.FieldResolveFn {
 	}
 }
 
-func (r *Resolver) EditProduct() graphql.FieldResolveFn {
+func (r *Resolver) UpdateProduct() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (interface{}, error) {
 		id, _ := p.Args["id"].(int)
 		name, _ := p.Args["name"].(string)
@@ -72,7 +73,7 @@ func (r *Resolver) EditProduct() graphql.FieldResolveFn {
 		previewImageURL, _ := p.Args["previewImageURL"].(string)
 		slug, _ := p.Args["slug"].(string)
 
-		req := editProductRequest{
+		req := productmodule.UpdateProductRequest{
 			Name:            name,
 			Description:     description,
 			Price:           int64(price),
@@ -82,6 +83,6 @@ func (r *Resolver) EditProduct() graphql.FieldResolveFn {
 			Slug:            slug,
 		}
 
-		return r.p.EditProduct(int64(id), req)
+		return r.p.UpdateProduct(int64(id), req)
 	}
 }

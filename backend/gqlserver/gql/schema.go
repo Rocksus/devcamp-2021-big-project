@@ -110,7 +110,7 @@ func (s *SchemaWrapper) Init() error {
 							Type: graphql.String,
 						},
 					},
-					Resolve: s.productResolver.EditProduct(),
+					Resolve: s.productResolver.UpdateProduct(),
 				},
 			},
 		}),

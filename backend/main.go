@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/Rocksus/devcamp-2021-big-project/backend/database"
-	"github.com/Rocksus/devcamp-2021-big-project/backend/server"
-	"github.com/Rocksus/devcamp-2021-big-project/backend/server/handlers/product"
-	"github.com/gorilla/mux"
-	"net/http"
+	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver"
+	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql"
+	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql/product"
+	"log"
 	"time"
 )
 
@@ -20,20 +20,20 @@ func main() {
 	}
 	db := database.GetDatabaseConnection(dbConfig)
 
-	ph := product.NewProductHandler(db)
+	ps := product.NewProductService(db)
+	productResolver := product.NewResolver(ps)
 
-	router := mux.NewRouter()
+	schemaWrapper := gql.NewSchemaWrapper().
+		WithProductResolver(productResolver)
 
-	//registering handlers
-	router.HandleFunc("/product", ph.AddProduct).Methods(http.MethodPost)
-	router.HandleFunc("/product/{id:[0-9]+}", ph.EditProduct).Methods(http.MethodPut)
-	router.HandleFunc("/product/{id:[0-9]+}", ph.GetProduct).Methods(http.MethodGet)
-	router.HandleFunc("/products", ph.GetProductBatch).Methods(http.MethodGet)
+	if err := schemaWrapper.Init(); err != nil {
+		log.Fatal("unable to parse schema, err: ", err.Error())
+	}
 
-	serverConfig := server.Config{
+	serverConfig := gqlserver.Config{
 		WriteTimeout: 5 * time.Second,
 		ReadTimeout:  5 * time.Second,
 		Port:         9000,
 	}
-	server.Serve(serverConfig, router)
+	gqlserver.Serve(serverConfig, schemaWrapper)
 }

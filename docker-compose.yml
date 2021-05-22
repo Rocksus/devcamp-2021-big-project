@@ -6,7 +6,7 @@ services:
     depends_on:
       - db
     ports:
-      - "9000:9000"
+      - 9000:9000
   db:
     build: ./db
     restart: always
@@ -15,6 +15,6 @@ services:
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=devcamp
     ports:
-      - 5432:5432
+      - 9001:5432
     volumes:
       - ./db/db-data:/var/lib/postgresql/data

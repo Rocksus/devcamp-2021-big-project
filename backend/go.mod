@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.0 // indirect
+	github.com/gomodule/redigo v1.8.4 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/graphql-go/graphql v0.7.9
 	github.com/influxdata/influxdb-client-go/v2 v2.3.0 // indirect

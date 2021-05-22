@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Rocksus/devcamp-2021-big-project/backend/cache"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/database"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql"
@@ -25,6 +26,15 @@ func main() {
 	}
 	defer closer.Close()
 
+	cacheConfig := cache.Config{
+		MaxActive:       20,
+		MaxIdle:         5,
+		IdleTimeout:     240 * time.Second,
+		MaxConnLifetime: 0,
+	}
+
+	cache := cache.Init(cacheConfig)
+
 	dbConfig := database.Config{
 		User:     "postgres",
 		Password: "admin",
@@ -35,7 +45,7 @@ func main() {
 	}
 	db := database.GetDatabaseConnection(dbConfig)
 
-	pm := productmodule.NewProductModule(db)
+	pm := productmodule.NewProductModule(db, cache)
 	productResolver := product.NewResolver(pm)
 
 

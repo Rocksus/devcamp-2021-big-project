@@ -3,18 +3,20 @@ package productmodule
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
+	"github.com/gomodule/redigo/redis"
 	"log"
 )
 
 type Module struct {
-	ProductDB *sql.DB
+	Storage *storage
+	Cache *cache
 }
 
-func NewProductModule(db *sql.DB) *Module {
+func NewProductModule(db *sql.DB, cache redis.Conn) *Module {
 	return &Module{
-		ProductDB: db,
+		Storage: newStorage(db),
+		Cache: newCache(cache),
 	}
 }
 
@@ -23,29 +25,15 @@ func (p *Module) AddProduct(ctx context.Context, data InsertProductRequest) (Pro
 	defer span.Finish()
 	span.SetTag("added-product-name", data.Name)
 
-	var resp ProductResponse
-
 	if err := data.Sanitize(); err != nil {
 		log.Println("[ProductModule][AddProduct] bad request, err: ", err.Error())
-		return resp, err
+		return ProductResponse{}, err
 	}
 
-	var id int64
-	if err := p.ProductDB.QueryRowContext(ctx, addProductQuery,
-		data.Name,
-		data.Description,
-		data.Price,
-		data.Rating,
-		data.ImageURL,
-		data.PreviewImageURL,
-		data.Slug,
-	).Scan(&id); err != nil {
-		log.Println("[ProductModule][AddProduct] problem querying to db, err: ", err.Error())
+	resp, err := p.Storage.AddProduct(ctx, data)
+	if err != nil {
+		log.Println("[ProductModule][AddProduct] problem in getting from storage, err: ", err.Error())
 		return resp, err
-	}
-
-	resp = ProductResponse{
-		ID: id,
 	}
 
 	return resp, nil
@@ -56,20 +44,22 @@ func (p *Module) GetProduct(ctx context.Context, id int64) (ProductResponse, err
 	defer span.Finish()
 	span.SetTag("id", id)
 
-	var resp ProductResponse
-	if err := p.ProductDB.QueryRowContext(ctx, getProductQuery, id).Scan(
-		&resp.Name,
-		&resp.Description,
-		&resp.Price,
-		&resp.Rating,
-		&resp.ImageURL,
-		&resp.PreviewImageURL,
-		&resp.Slug,
-	); err != nil {
-		log.Println("[ProductModule][GetProduct] problem querying to db, err: ", err.Error())
-		return resp, err
+	resp, err := p.Cache.GetProduct(ctx, id)
+	if err == nil {
+		return resp, nil
 	}
-	resp.ID = id
+	if err != nil && err != redis.ErrNil {
+		log.Println("[ProductModule][GetProduct] problem getting cache data, err: ", err.Error())
+	}
+
+	resp, err = p.Storage.GetProduct(ctx, id)
+	if err != nil {
+		log.Println("[ProductModule][GetProduct] problem getting storage data, err: ", err.Error())
+	}
+
+	if err := p.Cache.SetProduct(ctx, resp); err != nil {
+		log.Println("[ProductModule][GetProduct] problem setting cache data, err: ", err.Error())
+	}
 
 	return resp, nil
 }
@@ -78,30 +68,21 @@ func (p *Module) GetProductBatch(ctx context.Context, lastID int64, limit int) (
 	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproductbatchdata")
 	defer span.Finish()
 
-	resp := make([]ProductResponse, 0)
-	rows, err := p.ProductDB.QueryContext(ctx, getProductBatchQuery, lastID, limit)
-	if err != nil {
-		log.Println("[ProductModule][GetProductBatch] problem querying to db, err: ", err.Error())
-		return resp, err
+	resp, err := p.Cache.GetProductBatch(ctx, lastID, limit)
+	if err == nil {
+		return resp, nil
 	}
-	defer rows.Close()
+	if err != nil && err != redis.ErrNil {
+		log.Println("[ProductModule][GetProductBatch] problem getting cache, err: ", err.Error())
+	}
 
-	for rows.Next() {
-		var rowData ProductResponse
-		if err := rows.Scan(
-			&rowData.ID,
-			&rowData.Name,
-			&rowData.Description,
-			&rowData.Price,
-			&rowData.Rating,
-			&rowData.ImageURL,
-			&rowData.PreviewImageURL,
-			&rowData.Slug,
-		); err != nil {
-			log.Println("[ProductModule][GetProductBatch] problem with scanning db row, err: ", err.Error())
-			return resp, err
-		}
-		resp = append(resp, rowData)
+	resp, err = p.Storage.GetProductBatch(ctx, lastID, limit)
+	if err != nil {
+		log.Println("[ProductModule][GetProductBatch] problem getting storage data, err: ", err.Error())
+	}
+
+	if err := p.Cache.SetProductBatch(ctx, lastID, limit, resp); err != nil {
+		log.Println("[ProductModule][GetProductBatch] problem setting cache data, err: ", err.Error())
 	}
 
 	return resp, nil
@@ -112,25 +93,11 @@ func (p *Module) UpdateProduct(ctx context.Context, id int64, data UpdateProduct
 	defer span.Finish()
 	span.SetTag("id", id)
 
-	var resp ProductResponse
-
-	query, values := data.BuildQuery(id)
-	res, err := p.ProductDB.ExecContext(ctx, query, values...)
+	resp, err := p.Storage.UpdateProduct(ctx, id, data)
 	if err != nil {
-		log.Println("[ProductModule][UpdateProduct] problem querying to db, err: ", err.Error())
+		log.Println("[ProductModule][UpdateProduct] problem getting storage data, err: ", err.Error())
 		return resp, err
 	}
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("[ProductModule][UpdateProduct] problem querying to db, err: ", err.Error())
-		return resp, err
-	}
-	if rowsAffected == 0 {
-		log.Println("[ProductModule][UpdateProduct] no rows affected in db")
-		return resp, errors.New("no rows affected in db")
-	}
 
-	return ProductResponse{
-		ID: id,
-	}, nil
+	return resp, nil
 }

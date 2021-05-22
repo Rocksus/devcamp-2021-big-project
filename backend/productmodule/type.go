@@ -5,6 +5,11 @@ import (
 	"fmt"
 )
 
+const (
+	cacheKeyProduct = "product:%d"
+	cacheKeyProductBatch = "products:%d:%d"
+)
+
 type ProductResponse struct {
 	ID              int64   `json:"id,omitempty" db:"id"`
 	Name            string  `json:"name,omitempty" db:"name"`

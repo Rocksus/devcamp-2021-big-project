@@ -6,6 +6,7 @@ services:
     depends_on:
       - db
       - jaeger
+      - redis
     ports:
       - 9000:9000
   db:
@@ -54,3 +55,5 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=grafana
       - GF_SECURITY_ADMIN_PASSWORD=admin
+  redis:
+    image: redis:alpine

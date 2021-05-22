@@ -44,17 +44,16 @@ func (p insertProductRequest) Sanitize() error {
 }
 
 type editProductRequest struct {
-	ID              int64   `json:"id" db:"id"`
-	Name            string  `json:"name" db:"name"`
-	Description     string  `json:"description" db:"description"`
-	Price           int64   `json:"price" db:"price"`
-	Rating          float32 `json:"rating" db:"rating"`
-	ImageURL        string  `json:"image_url" db:"image_url"`
-	PreviewImageURL string  `json:"preview_image_url" db:"preview_image_url"`
-	Slug            string  `json:"slug" db:"slug"`
+	Name            string  `json:"name"`
+	Description     string  `json:"description"`
+	Price           int64   `json:"price"`
+	Rating          float32 `json:"rating"`
+	ImageURL        string  `json:"image_url"`
+	PreviewImageURL string  `json:"preview_image_url"`
+	Slug            string  `json:"slug"`
 }
 
-func (p editProductRequest) BuildQuery() (string, []interface{}) {
+func (p editProductRequest) BuildQuery(id int64) (string, []interface{}) {
 	var fieldQuery string
 	fieldValues := make([]interface{}, 0)
 
@@ -95,7 +94,7 @@ func (p editProductRequest) BuildQuery() (string, []interface{}) {
 		i++
 	}
 
-	finalQuery := fmt.Sprintf(editProductQuery, fieldQuery, i)
+	finalQuery := fmt.Sprintf(editProductQuery, fieldQuery, id)
 
 	return finalQuery, fieldValues
 }

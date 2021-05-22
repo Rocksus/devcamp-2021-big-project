@@ -71,6 +71,7 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("[ProductHandler][GetProduct] bad request, err: ", err.Error())
 		server.RenderError(w, http.StatusBadRequest, err)
+		return
 	}
 
 	var resp productResponse
@@ -119,39 +120,40 @@ func (p *Handler) EditProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	queryID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
-		log.Println("[ProductHandler][GetProduct] bad request, err: ", err.Error())
+		log.Println("[ProductHandler][EditProduct] bad request, err: ", err.Error())
 		server.RenderError(w, http.StatusBadRequest, err)
+		return
 	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Println("[ProductHandler][AddProduct] unable to read body, err: ", err.Error())
+		log.Println("[ProductHandler][EditProduct] unable to read body, err: ", err.Error())
 		server.RenderError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	var data editProductRequest
 	if err := json.Unmarshal(body, &data); err != nil {
-		log.Println("[ProductHandler][AddProduct] unable to unmarshal json, err: ", err.Error())
+		log.Println("[ProductHandler][EditProduct] unable to unmarshal json, err: ", err.Error())
 		server.RenderError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	query, values := data.BuildQuery()
+	query, values := data.BuildQuery(queryID)
 	res, err := p.ProductDB.Exec(query, values...)
 	if err != nil {
-		log.Println("[ProductHandler][GetProduct] problem querying to db, err: ", err.Error())
+		log.Println("[ProductHandler][EditProduct] problem querying to db, err: ", err.Error())
 		server.RenderError(w, http.StatusInternalServerError, err)
 		return
 	}
 	rowsAffected, err := res.RowsAffected()
 	if err != nil {
-		log.Println("[ProductHandler][GetProduct] problem querying to db, err: ", err.Error())
+		log.Println("[ProductHandler][EditProduct] problem querying to db, err: ", err.Error())
 		server.RenderError(w, http.StatusInternalServerError, err)
 		return
 	}
 	if rowsAffected == 0 {
-		log.Println("[ProductHandler][GetProduct] no rows affected in db")
+		log.Println("[ProductHandler][EditProduct] no rows affected in db")
 		server.RenderError(w, http.StatusInternalServerError, errors.New("no rows affected in db"))
 		return
 	}

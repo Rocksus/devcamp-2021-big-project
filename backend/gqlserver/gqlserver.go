@@ -3,7 +3,7 @@ package gqlserver
 import (
 	"context"
 	"fmt"
-	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
@@ -18,12 +18,9 @@ type Config struct {
 	Port         int
 }
 
-func Serve(cfg Config, schemaWrapper *gql.SchemaWrapper) {
-
-	handler := gql.NewHandler(schemaWrapper)
-	http.Handle("/graphql", handler.Handle())
-
+func Serve(cfg Config, router *mux.Router) {
 	srv := &http.Server{
+		Handler: router,
 		Addr:         fmt.Sprint(":", cfg.Port),
 		WriteTimeout: cfg.WriteTimeout,
 		ReadTimeout:  cfg.ReadTimeout,

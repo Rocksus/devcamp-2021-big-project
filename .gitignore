@@ -16,3 +16,5 @@
 .idea
 .env
 db-data
+prometheus-data
+grafana-data

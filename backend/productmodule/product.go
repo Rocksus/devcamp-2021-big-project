@@ -1,8 +1,10 @@
 package productmodule
 
 import (
+	"context"
 	"database/sql"
 	"errors"
+	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 	"log"
 )
 
@@ -16,7 +18,11 @@ func NewProductModule(db *sql.DB) *Module {
 	}
 }
 
-func (p *Module) AddProduct(data InsertProductRequest) (ProductResponse, error) {
+func (p *Module) AddProduct(ctx context.Context, data InsertProductRequest) (ProductResponse, error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.addproduct")
+	defer span.Finish()
+	span.SetTag("added-product-name", data.Name)
+
 	var resp ProductResponse
 
 	if err := data.Sanitize(); err != nil {
@@ -25,7 +31,7 @@ func (p *Module) AddProduct(data InsertProductRequest) (ProductResponse, error) 
 	}
 
 	var id int64
-	if err := p.ProductDB.QueryRow(addProductQuery,
+	if err := p.ProductDB.QueryRowContext(ctx, addProductQuery,
 		data.Name,
 		data.Description,
 		data.Price,
@@ -45,9 +51,13 @@ func (p *Module) AddProduct(data InsertProductRequest) (ProductResponse, error) 
 	return resp, nil
 }
 
-func (p *Module) GetProduct(id int64) (ProductResponse, error) {
+func (p *Module) GetProduct(ctx context.Context, id int64) (ProductResponse, error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproduct")
+	defer span.Finish()
+	span.SetTag("id", id)
+
 	var resp ProductResponse
-	if err := p.ProductDB.QueryRow(getProductQuery, id).Scan(
+	if err := p.ProductDB.QueryRowContext(ctx, getProductQuery, id).Scan(
 		&resp.Name,
 		&resp.Description,
 		&resp.Price,
@@ -64,9 +74,12 @@ func (p *Module) GetProduct(id int64) (ProductResponse, error) {
 	return resp, nil
 }
 
-func (p *Module) GetProductBatch(lastID int64, limit int) ([]ProductResponse, error) {
+func (p *Module) GetProductBatch(ctx context.Context, lastID int64, limit int) ([]ProductResponse, error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproductbatchdata")
+	defer span.Finish()
+
 	resp := make([]ProductResponse, 0)
-	rows, err := p.ProductDB.Query(getProductBatchQuery, lastID, limit)
+	rows, err := p.ProductDB.QueryContext(ctx, getProductBatchQuery, lastID, limit)
 	if err != nil {
 		log.Println("[ProductModule][GetProductBatch] problem querying to db, err: ", err.Error())
 		return resp, err
@@ -94,11 +107,15 @@ func (p *Module) GetProductBatch(lastID int64, limit int) ([]ProductResponse, er
 	return resp, nil
 }
 
-func (p *Module) UpdateProduct(id int64, data UpdateProductRequest) (ProductResponse, error) {
+func (p *Module) UpdateProduct(ctx context.Context, id int64, data UpdateProductRequest) (ProductResponse, error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.updateproduct")
+	defer span.Finish()
+	span.SetTag("id", id)
+
 	var resp ProductResponse
 
 	query, values := data.BuildQuery(id)
-	res, err := p.ProductDB.Exec(query, values...)
+	res, err := p.ProductDB.ExecContext(ctx, query, values...)
 	if err != nil {
 		log.Println("[ProductModule][UpdateProduct] problem querying to db, err: ", err.Error())
 		return resp, err

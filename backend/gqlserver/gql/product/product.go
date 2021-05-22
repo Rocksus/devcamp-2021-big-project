@@ -83,6 +83,7 @@ func (p *Product) GetProductBatch(lastID int64, limit int) ([]ProductResponse, e
 	for rows.Next() {
 		var rowData ProductResponse
 		if err := rows.Scan(
+			&rowData.ID,
 			&rowData.Name,
 			&rowData.Description,
 			&rowData.Price,

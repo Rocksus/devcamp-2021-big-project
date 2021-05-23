@@ -3,20 +3,24 @@ package productmodule
 import (
 	"context"
 	"database/sql"
+	"github.com/Rocksus/devcamp-2021-big-project/backend/messaging"
+	"log"
+
 	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 	"github.com/gomodule/redigo/redis"
-	"log"
 )
 
 type Module struct {
-	Storage *storage
-	Cache *cache
+	Storage  *storage
+	Cache    *cache
+	Producer *messaging.Producer
 }
 
-func NewProductModule(db *sql.DB, cache redis.Conn) *Module {
+func NewProductModule(db *sql.DB, cache redis.Conn, p *messaging.Producer) *Module {
 	return &Module{
-		Storage: newStorage(db),
-		Cache: newCache(cache),
+		Storage:  newStorage(db),
+		Cache:    newCache(cache),
+		Producer: p,
 	}
 }
 
@@ -43,8 +47,22 @@ func (p *Module) GetProduct(ctx context.Context, id int64) (ProductResponse, err
 	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproduct")
 	defer span.Finish()
 	span.SetTag("id", id)
+	var resp ProductResponse
+	var err error
 
-	resp, err := p.Cache.GetProduct(ctx, id)
+	defer func() {
+		// publish view data to be handled by consumer
+		message := producerMessage{
+			Event:         "view",
+			ProductDetail: resp,
+		}
+
+		if err := p.Producer.Publish(topicProductView, message); err != nil {
+			log.Println("[ProductModule][GetProduct] failed to publish message data, err: ", err.Error())
+		}
+	}()
+
+	resp, err = p.Cache.GetProduct(ctx, id)
 	if err == nil {
 		return resp, nil
 	}

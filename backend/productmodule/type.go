@@ -6,8 +6,12 @@ import (
 )
 
 const (
-	cacheKeyProduct = "product:%d"
+	cacheKeyProduct      = "product:%d"
 	cacheKeyProductBatch = "products:%d:%d"
+)
+
+const (
+	topicProductView = "product_view"
 )
 
 type ProductResponse struct {
@@ -98,4 +102,9 @@ func (p UpdateProductRequest) BuildQuery(id int64) (string, []interface{}) {
 	finalQuery := fmt.Sprintf(updateProductQuery, fieldQuery, id)
 
 	return finalQuery, fieldValues
+}
+
+type producerMessage struct {
+	Event         string          `json:"event"`
+	ProductDetail ProductResponse `json:"product_detail"`
 }

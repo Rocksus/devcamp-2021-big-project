@@ -101,7 +101,7 @@ func (s *storage) GetProductBatch(ctx context.Context, lastID int64, limit int) 
 	return resp, nil
 }
 
-func (s *storage) UpdateProduct(ctx context.Context, id int64, data UpdateProductRequest) (ProductResponse, error)  {
+func (s *storage) UpdateProduct(ctx context.Context, id int64, data UpdateProductRequest) (ProductResponse, error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.updateproduct.storage")
 	defer span.Finish()
 

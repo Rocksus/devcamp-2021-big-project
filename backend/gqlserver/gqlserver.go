@@ -20,7 +20,7 @@ type Config struct {
 
 func Serve(cfg Config, router *mux.Router) {
 	srv := &http.Server{
-		Handler: router,
+		Handler:      router,
 		Addr:         fmt.Sprint(":", cfg.Port),
 		WriteTimeout: cfg.WriteTimeout,
 		ReadTimeout:  cfg.ReadTimeout,

@@ -1,8 +1,9 @@
 package gql
 
 import (
-	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql/product"
 	"github.com/graphql-go/graphql"
+
+	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql/product"
 )
 
 type SchemaWrapper struct {

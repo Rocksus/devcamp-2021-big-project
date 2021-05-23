@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 	"github.com/gomodule/redigo/redis"
+
+	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 )
 
 type cache struct {
@@ -31,7 +32,6 @@ func (s *cache) GetProduct(ctx context.Context, id int64) (ProductResponse, erro
 
 	cachedData, err := redis.Bytes(s.ProductCache.Do("GET", key))
 	if err != nil {
-		log.Println("[ProductModule][GetProduct][Cache] problem getting cache, err: ", err.Error())
 		return resp, err
 	}
 
@@ -73,7 +73,6 @@ func (s *cache) GetProductBatch(ctx context.Context, lastID int64, limit int) ([
 
 	cachedData, err := redis.Bytes(s.ProductCache.Do("GET", key))
 	if err != nil {
-		log.Println("[ProductModule][GetProductBatch][Cache] problem getting cache, err: ", err.Error())
 		return resp, err
 	}
 

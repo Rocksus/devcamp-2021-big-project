@@ -1,10 +1,11 @@
 package monitoring
 
 import (
-	"github.com/gorilla/mux"
-	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type responseWriter struct {

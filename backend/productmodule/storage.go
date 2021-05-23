@@ -4,8 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 	"log"
+
+	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 )
 
 type storage struct {

@@ -1,7 +1,15 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/Rocksus/devcamp-2021-big-project/backend/cache"
+
+	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"github.com/Rocksus/devcamp-2021-big-project/backend/database"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql"
@@ -10,10 +18,6 @@ import (
 	"github.com/Rocksus/devcamp-2021-big-project/backend/monitoring"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/productmodule"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
-	"github.com/gorilla/mux"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"log"
-	"time"
 )
 
 func main() {
@@ -65,8 +69,11 @@ func main() {
 	router := mux.NewRouter()
 	router.Use(monitoring.Middleware)
 
+	fs := http.FileServer(http.Dir("static"))
+
 	router.Path("/graphql").Handler(gql.NewHandler(schemaWrapper).Handle())
 	router.Path("/prometheus").Handler(promhttp.Handler())
+	router.PathPrefix("/").Handler(fs)
 
 	serverConfig := gqlserver.Config{
 		WriteTimeout: 5 * time.Second,

@@ -2,9 +2,10 @@ package gql
 
 import (
 	"encoding/json"
-	"github.com/graphql-go/graphql"
 	"log"
 	"net/http"
+
+	"github.com/graphql-go/graphql"
 )
 
 type Handler struct {

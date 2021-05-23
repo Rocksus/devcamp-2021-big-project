@@ -2,9 +2,11 @@ package product
 
 import (
 	"context"
+
+	"github.com/graphql-go/graphql"
+
 	"github.com/Rocksus/devcamp-2021-big-project/backend/productmodule"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
-	"github.com/graphql-go/graphql"
 )
 
 type Resolver struct {

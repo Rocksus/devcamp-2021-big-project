@@ -2,12 +2,13 @@ package tracer
 
 import (
 	"context"
+	"io"
+	"log"
+
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
 	"github.com/uber/jaeger-lib/metrics"
-	"io"
-	"log"
 )
 
 func Init(appName string) (io.Closer, error) {

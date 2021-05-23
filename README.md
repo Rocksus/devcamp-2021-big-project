@@ -18,5 +18,8 @@ Code organization will be presented below. Please refer to each folder for a mor
 devcamp-2021-big-project
  ├── frontend               # Frontend Code
  ├── backend                # Backend Code
+ ├── consumer               # Message Consumer Code
+ ├── db                     # Database initialization script
+ ├── monitoring             # Prometheus & Grafana Initialization scripts
  └── docker-compose.yml
 ```

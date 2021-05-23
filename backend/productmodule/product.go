@@ -73,6 +73,7 @@ func (p *Module) GetProduct(ctx context.Context, id int64) (ProductResponse, err
 	resp, err = p.Storage.GetProduct(ctx, id)
 	if err != nil {
 		log.Println("[ProductModule][GetProduct] problem getting storage data, err: ", err.Error())
+		return resp, err
 	}
 
 	if err := p.Cache.SetProduct(ctx, resp); err != nil {
@@ -97,6 +98,7 @@ func (p *Module) GetProductBatch(ctx context.Context, lastID int64, limit int) (
 	resp, err = p.Storage.GetProductBatch(ctx, lastID, limit)
 	if err != nil {
 		log.Println("[ProductModule][GetProductBatch] problem getting storage data, err: ", err.Error())
+		return resp, err
 	}
 
 	if err := p.Cache.SetProductBatch(ctx, lastID, limit, resp); err != nil {

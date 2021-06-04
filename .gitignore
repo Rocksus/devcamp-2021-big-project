@@ -18,3 +18,4 @@
 db-data
 prometheus-data
 grafana-data
+postgres-data

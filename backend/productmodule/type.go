@@ -64,42 +64,42 @@ func (p UpdateProductRequest) BuildQuery(id int64) (string, []interface{}) {
 
 	var i = 1
 	if p.Name != "" {
-		fieldQuery += fmt.Sprint("name=$", i)
+		fieldQuery += fmt.Sprintf("name=$%d,", i)
 		fieldValues = append(fieldValues, p.Name)
 		i++
 	}
 	if p.Description != "" {
-		fieldQuery += fmt.Sprint("description=$", i)
+		fieldQuery += fmt.Sprintf("description=$%d,", i)
 		fieldValues = append(fieldValues, p.Description)
 		i++
 	}
 	if p.Price != 0 {
-		fieldQuery += fmt.Sprint("price=$", i)
+		fieldQuery += fmt.Sprintf("price=$%d,", i)
 		fieldValues = append(fieldValues, p.Price)
 		i++
 	}
 	if p.Rating != 0 {
-		fieldQuery += fmt.Sprint("rating=$", i)
+		fieldQuery += fmt.Sprintf("rating=$%d,", i)
 		fieldValues = append(fieldValues, p.Rating)
 		i++
 	}
 	if p.ImageURL != "" {
-		fieldQuery += fmt.Sprint("image_url=$", i)
+		fieldQuery += fmt.Sprintf("image_url=$%d,", i)
 		fieldValues = append(fieldValues, p.ImageURL)
 		i++
 	}
 	if p.PreviewImageURL != "" {
-		fieldQuery += fmt.Sprint("preview_image_url=$", i)
+		fieldQuery += fmt.Sprintf("preview_image_url=$%d,", i)
 		fieldValues = append(fieldValues, p.PreviewImageURL)
 		i++
 	}
 	if p.Slug != "" {
-		fieldQuery += fmt.Sprint("preview_image_url=$", i)
+		fieldQuery += fmt.Sprintf("slug=$%d,", i)
 		fieldValues = append(fieldValues, p.Slug)
 		i++
 	}
 
-	finalQuery := fmt.Sprintf(updateProductQuery, fieldQuery, id)
+	finalQuery := fmt.Sprintf(updateProductQuery, fieldQuery[:len(fieldQuery)-1], id)
 
 	return finalQuery, fieldValues
 }

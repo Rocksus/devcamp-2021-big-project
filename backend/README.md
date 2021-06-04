@@ -9,6 +9,68 @@ The backend side will explore various topics ranging from:
 - Caching
 - Message Queueing
 
+## Starting Up
+
+If you have ran the `docker-compose` with the `detached` option like so:
+
+```shell
+docker-compose up -d
+```
+
+you can simply run
+
+```shell
+docker-compose up --build app
+```
+
+to rebuild the backend service.
+
+## Basic Queries
+
+
+Do note that we also provide an accessible GraphiQL playground that can be accessed by going to `localhost:9000` (the default port)\
+Here we list some example queries for you to start with:
+
+Adding New Product
+
+```shell
+curl --location --request POST 'http://localhost:9000/graphql' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "query": "mutation { addProduct(name:\"cool new product\" description:\"This is a cool new product. Must have if you are trendy\" price:299000 rating:5 slug:\"cool-new-product\") { id } }"
+}'
+```
+
+Getting Product Data
+
+```shell
+curl --location --request POST 'http://localhost:9000/graphql' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "query": "query { product(id:1) { id name description price rating imageURL previewImageURL slug} }"
+}'
+```
+
+Getting Multiple Products
+
+```shell
+curl --location --request POST 'http://localhost:9000/graphql' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "query": "query { products(limit:5) { id name description price rating imageURL previewImageURL slug} }"
+}'
+```
+
+Updating Product
+
+```shell
+curl --location --request POST 'http://localhost:9000/graphql' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "query": "mutation { updateProduct(id:1 price:499000) { id } }"
+}'
+```
+
 ## Code Organization
 
 Code organization will be presented below. Please refer to each folder for a more detailed description.

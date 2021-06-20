@@ -11,7 +11,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/Rocksus/devcamp-2021-big-project/backend/database"
-	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql/product"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/messaging"

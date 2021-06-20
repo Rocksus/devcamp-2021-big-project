@@ -86,10 +86,10 @@ func main() {
 	fs := http.FileServer(http.Dir("static"))
 	router.PathPrefix("/").Handler(fs)
 
-	serverConfig := gqlserver.Config{
+	serverConfig := server.Config{
 		WriteTimeout: 5 * time.Second,
 		ReadTimeout:  5 * time.Second,
 		Port:         9000,
 	}
-	gqlserver.Serve(serverConfig, router)
+	server.Serve(serverConfig, router)
 }

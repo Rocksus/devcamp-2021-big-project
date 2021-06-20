@@ -87,8 +87,7 @@ backend
  │     │     ├── schema.go
  │     │     ├── schema.graphql
  │     │     └── handler.go
- │     ├── static               # GraphQL Playground assets
- │     └── gqlserver.go
+ │     └── static               # GraphQL Playground assets
  ├── messaging                  # Messaging Producer & Consumer
  │     ├── consumer.go
  │     └── producer.go

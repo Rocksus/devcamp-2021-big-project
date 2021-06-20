@@ -1,9 +1,7 @@
 package product
 
 import (
-	"database/sql"
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,20 +9,25 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/Rocksus/devcamp-2021-big-project/backend/productmodule"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/server"
+	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 )
 
 type Handler struct {
-	ProductDB *sql.DB
+	product *productmodule.Module
 }
 
-func NewProductHandler(db *sql.DB) *Handler {
+func NewProductHandler(p *productmodule.Module) *Handler {
 	return &Handler{
-		ProductDB: db,
+		product: p,
 	}
 }
 
 func (p *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
+	span, ctx := tracer.StartSpanFromContext(r.Context(), "producthandler.addproduct")
+	defer span.Finish()
+
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println("[ProductHandler][AddProduct] unable to read body, err: ", err.Error())
@@ -32,35 +35,21 @@ func (p *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data insertProductRequest
+	var data productmodule.InsertProductRequest
 	if err := json.Unmarshal(body, &data); err != nil {
 		log.Println("[ProductHandler][AddProduct] unable to unmarshal json, err: ", err.Error())
 		server.RenderError(w, http.StatusBadRequest, err)
 		return
 	}
-	if err := data.Sanitize(); err != nil {
-		log.Println("[ProductHandler][AddProduct] bad request, err: ", err.Error())
+
+	res, err := p.product.AddProduct(ctx, data)
+	if err != nil {
 		server.RenderError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	var id int64
-	if err := p.ProductDB.QueryRow(addProductQuery,
-		data.Name,
-		data.Description,
-		data.Price,
-		data.Rating,
-		data.ImageURL,
-		data.PreviewImageURL,
-		data.Slug,
-	).Scan(&id); err != nil {
-		log.Println("[ProductHandler][AddProduct] problem querying to db, err: ", err.Error())
-		server.RenderError(w, http.StatusInternalServerError, err)
-		return
-	}
-
 	resp := cuProductResponse{
-		ID: id,
+		ID: res.ID,
 	}
 
 	server.RenderResponse(w, http.StatusCreated, resp)
@@ -68,6 +57,9 @@ func (p *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
+	span, ctx := tracer.StartSpanFromContext(r.Context(), "producthandler.getproduct")
+	defer span.Finish()
+
 	vars := mux.Vars(r)
 	queryID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
@@ -76,10 +68,9 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var resp productResponse
-	if err := p.ProductDB.QueryRow(getProductQuery, queryID).Scan(&resp); err != nil {
-		log.Println("[ProductHandler][GetProduct] problem querying to db, err: ", err.Error())
-		server.RenderError(w, http.StatusInternalServerError, err)
+	resp, err := p.product.GetProduct(ctx, queryID)
+	if err != nil {
+		server.RenderError(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -88,10 +79,15 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
-	var lastID, limit int
+	span, ctx := tracer.StartSpanFromContext(r.Context(), "producthandler.getproductbatch")
+	defer span.Finish()
+
+	var limit int
+	var lastID int64
+
 	var err error
 	vars := mux.Vars(r)
-	lastID, err = strconv.Atoi(vars["lastid"])
+	lastID, err = strconv.ParseInt(vars["lastid"], 10, 64)
 	if err != nil {
 		lastID = 0
 	}
@@ -100,17 +96,9 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 		limit = 10
 	}
 
-	var resp productResponse
-	row, err := p.ProductDB.Query(getProductQuery, lastID, limit)
+	resp, err := p.product.GetProductBatch(ctx, lastID, limit)
 	if err != nil {
-		log.Println("[ProductHandler][GetProductBatch] problem querying to db, err: ", err.Error())
-		server.RenderError(w, http.StatusInternalServerError, err)
-		return
-	}
-	defer row.Close()
-	if err := row.Scan(&resp); err != nil {
-		log.Println("[ProductHandler][GetProductBatch] problem with scanning db row, err: ", err.Error())
-		server.RenderError(w, http.StatusInternalServerError, err)
+		server.RenderError(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -118,50 +106,36 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (p *Handler) EditProduct(w http.ResponseWriter, r *http.Request) {
+func (p *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	span, ctx := tracer.StartSpanFromContext(r.Context(), "producthandler.updateproduct")
+	defer span.Finish()
+
 	vars := mux.Vars(r)
 	queryID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
-		log.Println("[ProductHandler][EditProduct] bad request, err: ", err.Error())
+		log.Println("[ProductHandler][UpdateProduct] bad request, err: ", err.Error())
 		server.RenderError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Println("[ProductHandler][EditProduct] unable to read body, err: ", err.Error())
+		log.Println("[ProductHandler][UpdateProduct] unable to read body, err: ", err.Error())
 		server.RenderError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	var data editProductRequest
+	var data productmodule.UpdateProductRequest
 	if err := json.Unmarshal(body, &data); err != nil {
-		log.Println("[ProductHandler][EditProduct] unable to unmarshal json, err: ", err.Error())
+		log.Println("[ProductHandler][UpdateProduct] unable to unmarshal json, err: ", err.Error())
 		server.RenderError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	query, values := data.BuildQuery(queryID)
-	res, err := p.ProductDB.Exec(query, values...)
+	resp, err := p.product.UpdateProduct(ctx, queryID, data)
 	if err != nil {
-		log.Println("[ProductHandler][EditProduct] problem querying to db, err: ", err.Error())
-		server.RenderError(w, http.StatusInternalServerError, err)
+		server.RenderError(w, http.StatusBadRequest, err)
 		return
-	}
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Println("[ProductHandler][EditProduct] problem querying to db, err: ", err.Error())
-		server.RenderError(w, http.StatusInternalServerError, err)
-		return
-	}
-	if rowsAffected == 0 {
-		log.Println("[ProductHandler][EditProduct] no rows affected in db")
-		server.RenderError(w, http.StatusInternalServerError, errors.New("no rows affected in db"))
-		return
-	}
-
-	resp := cuProductResponse{
-		ID: queryID,
 	}
 
 	server.RenderResponse(w, http.StatusCreated, resp)

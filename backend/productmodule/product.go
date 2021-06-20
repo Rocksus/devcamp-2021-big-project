@@ -3,8 +3,9 @@ package productmodule
 import (
 	"context"
 	"database/sql"
-	"github.com/Rocksus/devcamp-2021-big-project/backend/messaging"
 	"log"
+
+	"github.com/Rocksus/devcamp-2021-big-project/backend/messaging"
 
 	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 	"github.com/gomodule/redigo/redis"

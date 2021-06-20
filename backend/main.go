@@ -17,6 +17,7 @@ import (
 	"github.com/Rocksus/devcamp-2021-big-project/backend/messaging"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/monitoring"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/productmodule"
+	productHandler "github.com/Rocksus/devcamp-2021-big-project/backend/server/handlers/product"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 )
 
@@ -57,10 +58,11 @@ func main() {
 	messageProducer := messaging.NewProducer(producerConfig)
 
 	pm := productmodule.NewProductModule(db, cache, messageProducer)
-	productResolver := product.NewResolver(pm)
+	ph := productHandler.NewProductHandler(pm)
+	pr := product.NewResolver(pm)
 
 	schemaWrapper := gql.NewSchemaWrapper().
-		WithProductResolver(productResolver)
+		WithProductResolver(pr)
 
 	if err := schemaWrapper.Init(); err != nil {
 		log.Fatal("unable to parse schema, err: ", err.Error())
@@ -69,10 +71,19 @@ func main() {
 	router := mux.NewRouter()
 	router.Use(monitoring.Middleware)
 
-	fs := http.FileServer(http.Dir("static"))
+	// REST Handlers
+	router.HandleFunc("/product", ph.AddProduct).Methods(http.MethodPost)
+	router.HandleFunc("/product/{id:[0-9]+}", ph.UpdateProduct).Methods(http.MethodPut)
+	router.HandleFunc("/product/{id:[0-9]+}", ph.GetProduct).Methods(http.MethodGet)
+	router.HandleFunc("/products", ph.GetProductBatch).Methods(http.MethodGet)
 
-	router.Path("/graphql").Handler(gql.NewHandler(schemaWrapper).Handle())
+	// Prometheus Handler
 	router.Path("/prometheus").Handler(promhttp.Handler())
+
+	// GraphQL Handler
+	router.Path("/graphql").Handler(gql.NewHandler(schemaWrapper).Handle())
+
+	fs := http.FileServer(http.Dir("static"))
 	router.PathPrefix("/").Handler(fs)
 
 	serverConfig := gqlserver.Config{

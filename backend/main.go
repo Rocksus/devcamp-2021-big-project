@@ -16,6 +16,7 @@ import (
 	"github.com/Rocksus/devcamp-2021-big-project/backend/messaging"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/monitoring"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/productmodule"
+	"github.com/Rocksus/devcamp-2021-big-project/backend/server"
 	productHandler "github.com/Rocksus/devcamp-2021-big-project/backend/server/handlers/product"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 )

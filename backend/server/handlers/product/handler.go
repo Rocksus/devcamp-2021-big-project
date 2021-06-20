@@ -11,7 +11,6 @@ import (
 
 	"github.com/Rocksus/devcamp-2021-big-project/backend/productmodule"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/server"
-	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 )
 
 type Handler struct {
@@ -25,9 +24,6 @@ func NewProductHandler(p *productmodule.Module) *Handler {
 }
 
 func (p *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
-	span, ctx := tracer.StartSpanFromContext(r.Context(), "producthandler.addproduct")
-	defer span.Finish()
-
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println("[ProductHandler][AddProduct] unable to read body, err: ", err.Error())
@@ -42,7 +38,7 @@ func (p *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := p.product.AddProduct(ctx, data)
+	res, err := p.product.AddProduct(data)
 	if err != nil {
 		server.RenderError(w, http.StatusBadRequest, err)
 		return
@@ -57,9 +53,6 @@ func (p *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
-	span, ctx := tracer.StartSpanFromContext(r.Context(), "producthandler.getproduct")
-	defer span.Finish()
-
 	vars := mux.Vars(r)
 	queryID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
@@ -68,7 +61,7 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := p.product.GetProduct(ctx, queryID)
+	resp, err := p.product.GetProduct(queryID)
 	if err != nil {
 		server.RenderError(w, http.StatusBadRequest, err)
 		return
@@ -79,9 +72,6 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
-	span, ctx := tracer.StartSpanFromContext(r.Context(), "producthandler.getproductbatch")
-	defer span.Finish()
-
 	var limit int
 	var lastID int64
 
@@ -96,7 +86,7 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 		limit = 10
 	}
 
-	resp, err := p.product.GetProductBatch(ctx, lastID, limit)
+	resp, err := p.product.GetProductBatch(lastID, limit)
 	if err != nil {
 		server.RenderError(w, http.StatusBadRequest, err)
 		return
@@ -107,9 +97,6 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
-	span, ctx := tracer.StartSpanFromContext(r.Context(), "producthandler.updateproduct")
-	defer span.Finish()
-
 	vars := mux.Vars(r)
 	queryID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
@@ -132,7 +119,7 @@ func (p *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := p.product.UpdateProduct(ctx, queryID, data)
+	resp, err := p.product.UpdateProduct(queryID, data)
 	if err != nil {
 		server.RenderError(w, http.StatusBadRequest, err)
 		return

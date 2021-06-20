@@ -1,12 +1,9 @@
 package product
 
 import (
-	"context"
-
 	"github.com/graphql-go/graphql"
 
 	"github.com/Rocksus/devcamp-2021-big-project/backend/productmodule"
-	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 )
 
 type Resolver struct {
@@ -21,9 +18,6 @@ func NewResolver(p *productmodule.Module) *Resolver {
 
 func (r *Resolver) AddProduct() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (interface{}, error) {
-		span, ctx := tracer.StartSpanFromContext(context.Background(), "gqlresolver.addproduct")
-		defer span.Finish()
-
 		name, _ := p.Args["name"].(string)
 		description, _ := p.Args["description"].(string)
 		price, _ := p.Args["price"].(int)
@@ -42,25 +36,20 @@ func (r *Resolver) AddProduct() graphql.FieldResolveFn {
 			Slug:            slug,
 		}
 
-		return r.p.AddProduct(ctx, req)
+		return r.p.AddProduct(req)
 	}
 }
 
 func (r *Resolver) GetProduct() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (interface{}, error) {
-		span, ctx := tracer.StartSpanFromContext(context.Background(), "gqlresolver.getproduct")
-		defer span.Finish()
 		id, _ := p.Args["id"].(int)
 
-		return r.p.GetProduct(ctx, int64(id))
+		return r.p.GetProduct(int64(id))
 	}
 }
 
 func (r *Resolver) GetProductBatch() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (interface{}, error) {
-		span, ctx := tracer.StartSpanFromContext(context.Background(), "gqlresolver.getproductbatch")
-		defer span.Finish()
-
 		lastID, ok := p.Args["lastid"].(int)
 		if !ok {
 			lastID = 0
@@ -70,15 +59,12 @@ func (r *Resolver) GetProductBatch() graphql.FieldResolveFn {
 			limit = 10
 		}
 
-		return r.p.GetProductBatch(ctx, int64(lastID), limit)
+		return r.p.GetProductBatch(int64(lastID), limit)
 	}
 }
 
 func (r *Resolver) UpdateProduct() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (interface{}, error) {
-		span, ctx := tracer.StartSpanFromContext(context.Background(), "gqlresolver.updateproduct")
-		defer span.Finish()
-
 		id, _ := p.Args["id"].(int)
 		name, _ := p.Args["name"].(string)
 		description, _ := p.Args["description"].(string)
@@ -98,6 +84,6 @@ func (r *Resolver) UpdateProduct() graphql.FieldResolveFn {
 			Slug:            slug,
 		}
 
-		return r.p.UpdateProduct(ctx, int64(id), req)
+		return r.p.UpdateProduct(int64(id), req)
 	}
 }

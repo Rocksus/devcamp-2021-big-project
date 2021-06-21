@@ -67,7 +67,7 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	server.RenderResponse(w, http.StatusCreated, resp)
+	server.RenderResponse(w, http.StatusOK, resp)
 	return
 }
 
@@ -76,12 +76,13 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 	var lastID int64
 
 	var err error
-	vars := mux.Vars(r)
-	lastID, err = strconv.ParseInt(vars["lastid"], 10, 64)
+	// query parameters are not available in mux vars
+	vars := r.URL.Query()
+	lastID, err = strconv.ParseInt(vars.Get("lastid"), 10, 64)
 	if err != nil {
 		lastID = 0
 	}
-	limit, err = strconv.Atoi(vars["limit"])
+	limit, err = strconv.Atoi(vars.Get("limit"))
 	if err != nil {
 		limit = 10
 	}
@@ -92,7 +93,7 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	server.RenderResponse(w, http.StatusCreated, resp)
+	server.RenderResponse(w, http.StatusOK, resp)
 	return
 }
 

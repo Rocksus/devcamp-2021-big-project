@@ -27,9 +27,54 @@ to rebuild the backend service.
 
 ## Basic Queries
 
-
 Do note that we also provide an accessible GraphiQL playground that can be accessed by going to `localhost:9000` (the default port)\
 Here we list some example queries for you to start with:
+
+### REST
+
+------
+
+Adding New Product
+
+```shell
+curl --location --request POST 'http://localhost:9000/product' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "product example",
+    "description": "An amazing example product!",
+    "price": 17500,
+    "rating": 0,
+    "image_url": "add_this_later",
+    "preview_image_url": "add_this_later",
+    "slug":"product-example"
+}'
+```
+
+Getting Product Data
+
+```shell
+curl --location --request GET 'http://localhost:9000/product/1'
+```
+
+Getting Multiple Products
+
+```shell
+curl --location --request GET 'http://localhost:9000/products?limit=3&lastid=0'
+```
+
+Updating Product
+
+```shell
+curl --location --request PUT 'http://localhost:9000/product/1' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "rating": 5
+}'
+```
+
+### GraphQL
+
+------
 
 Adding New Product
 

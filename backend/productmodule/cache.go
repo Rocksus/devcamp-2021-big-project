@@ -6,22 +6,22 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gomodule/redigo/redis"
-
+	"github.com/Rocksus/devcamp-2021-big-project/backend/cache"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
+	"github.com/gomodule/redigo/redis"
 )
 
-type cache struct {
-	ProductCache redis.Conn
+type Cache struct {
+	ProductCache *cache.Redis
 }
 
-func newCache(c redis.Conn) *cache {
-	return &cache{
-		ProductCache: c,
+func newCache(r *cache.Redis) *Cache {
+	return &Cache{
+		ProductCache: r,
 	}
 }
 
-func (s *cache) GetProduct(ctx context.Context, id int64) (ProductResponse, error) {
+func (s *Cache) GetProduct(ctx context.Context, id int64) (ProductResponse, error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproduct.cache")
 	defer span.Finish()
 
@@ -30,7 +30,7 @@ func (s *cache) GetProduct(ctx context.Context, id int64) (ProductResponse, erro
 	key := fmt.Sprintf(cacheKeyProduct, id)
 	span.SetTag("cachekey", key)
 
-	cachedData, err := redis.Bytes(s.ProductCache.Do("GET", key))
+	cachedData, err := redis.Bytes(s.ProductCache.Do(ctx, "GET", key))
 	if err != nil {
 		return resp, err
 	}
@@ -43,7 +43,7 @@ func (s *cache) GetProduct(ctx context.Context, id int64) (ProductResponse, erro
 	return resp, nil
 }
 
-func (s *cache) SetProduct(ctx context.Context, data ProductResponse) error {
+func (s *Cache) SetProduct(ctx context.Context, data ProductResponse) error {
 	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproduct.cache.set")
 	defer span.Finish()
 	key := fmt.Sprintf(cacheKeyProduct, data.ID)
@@ -54,7 +54,8 @@ func (s *cache) SetProduct(ctx context.Context, data ProductResponse) error {
 		log.Println("[ProductModule][SetProduct][Cache] problem marshalling cache, err: ", err.Error())
 		return err
 	}
-	if _, err := s.ProductCache.Do("SET", key, preparedData); err != nil {
+
+	if _, err := s.ProductCache.Do(ctx, "SET", key, preparedData); err != nil {
 		log.Println("[ProductModule][SetProduct][Cache] problem setting cache, err: ", err.Error())
 		return err
 	}
@@ -62,7 +63,7 @@ func (s *cache) SetProduct(ctx context.Context, data ProductResponse) error {
 	return nil
 }
 
-func (s *cache) GetProductBatch(ctx context.Context, lastID int64, limit int) ([]ProductResponse, error) {
+func (s *Cache) GetProductBatch(ctx context.Context, lastID int64, limit int) ([]ProductResponse, error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproductbatchdata.cache")
 	defer span.Finish()
 
@@ -71,7 +72,7 @@ func (s *cache) GetProductBatch(ctx context.Context, lastID int64, limit int) ([
 	key := fmt.Sprintf(cacheKeyProductBatch, lastID, limit)
 	span.SetTag("cachekey", key)
 
-	cachedData, err := redis.Bytes(s.ProductCache.Do("GET", key))
+	cachedData, err := redis.Bytes(s.ProductCache.Do(ctx, "GET", key))
 	if err != nil {
 		return resp, err
 	}
@@ -84,7 +85,7 @@ func (s *cache) GetProductBatch(ctx context.Context, lastID int64, limit int) ([
 	return resp, nil
 }
 
-func (s *cache) SetProductBatch(ctx context.Context, lastID int64, limit int, data []ProductResponse) error {
+func (s *Cache) SetProductBatch(ctx context.Context, lastID int64, limit int, data []ProductResponse) error {
 	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproductbatch.cache.set")
 	defer span.Finish()
 
@@ -96,7 +97,8 @@ func (s *cache) SetProductBatch(ctx context.Context, lastID int64, limit int, da
 		log.Println("[ProductModule][SetProductBatch][Cache] problem marshalling cache, err: ", err.Error())
 		return err
 	}
-	if _, err := s.ProductCache.Do("SET", key, preparedData); err != nil {
+
+	if _, err := s.ProductCache.Do(ctx, "SET", key, preparedData); err != nil {
 		log.Println("[ProductModule][SetProductBatch][Cache] problem setting cache, err: ", err.Error())
 		return err
 	}

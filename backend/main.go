@@ -39,7 +39,7 @@ func main() {
 		MaxConnLifetime: 0,
 	}
 
-	cache := cache.Init(cacheConfig)
+	cache := cache.InitializeRedis(cacheConfig)
 
 	dbConfig := database.Config{
 		User:     "postgres",

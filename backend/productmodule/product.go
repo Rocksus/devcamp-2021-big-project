@@ -7,6 +7,7 @@ import (
 
 	"github.com/Rocksus/devcamp-2021-big-project/backend/messaging"
 
+	"github.com/Rocksus/devcamp-2021-big-project/backend/cache"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 	"github.com/gomodule/redigo/redis"
 )
@@ -17,10 +18,10 @@ type Module struct {
 	Producer *messaging.Producer
 }
 
-func NewProductModule(db *sql.DB, cache redis.Conn, p *messaging.Producer) *Module {
+func NewProductModule(db *sql.DB, redisCache *cache.Redis, p *messaging.Producer) *Module {
 	return &Module{
 		Storage:  newStorage(db),
-		Cache:    newCache(cache),
+		Cache:    newCache(redisCache),
 		Producer: p,
 	}
 }

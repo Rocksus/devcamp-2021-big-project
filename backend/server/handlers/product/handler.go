@@ -2,6 +2,7 @@ package product
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -87,7 +88,8 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 		limit = 10
 	}
 
-	// TODO: implement this
+	// TODO: remove the placeholder println and implement this function
+	fmt.Println(limit, lastID)
 
 	return
 }

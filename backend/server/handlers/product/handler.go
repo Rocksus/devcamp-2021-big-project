@@ -87,13 +87,8 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 		limit = 10
 	}
 
-	resp, err := p.product.GetProductBatch(lastID, limit)
-	if err != nil {
-		server.RenderError(w, http.StatusBadRequest, err)
-		return
-	}
+	// TODO: implement this
 
-	server.RenderResponse(w, http.StatusOK, resp)
 	return
 }
 

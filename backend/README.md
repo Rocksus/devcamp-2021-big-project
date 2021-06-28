@@ -56,12 +56,6 @@ Getting Product Data
 curl --location --request GET 'http://localhost:9000/product/1'
 ```
 
-Getting Multiple Products
-
-```shell
-curl --location --request GET 'http://localhost:9000/products?limit=3&lastid=0'
-```
-
 Updating Product
 
 ```shell

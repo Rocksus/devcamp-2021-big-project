@@ -37,8 +37,8 @@ const (
 		*
 	FROM
 		product
-	LIMIT $2
-	OFFSET $3
+	LIMIT $1
+	OFFSET $2
 `
 
 	updateProductQuery = `

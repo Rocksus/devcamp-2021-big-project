@@ -39,6 +39,7 @@ func (p *Module) GetProduct(id int64) (ProductResponse, error) {
 		log.Println("[ProductModule][GetProduct] problem getting storage data, err: ", err.Error())
 		return resp, err
 	}
+	resp.PriceFormat = formatPrice(resp.Price)
 
 	return resp, nil
 }

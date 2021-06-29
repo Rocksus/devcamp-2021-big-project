@@ -89,8 +89,18 @@ $(function (global) {
                     "#\n" +
                     "# Press the run button above, or Cmd-Enter to execute the query, and the result\n" +
                     "# will appear in the pane to the right.\n\n" +
-                    "query ProductQuery {\n  product(id:1) {\n    name\n    description\n    id\n    imageURL\n" +
-                    "    name\n    previewImageURL\n    price\n    rating\n    slug\n  }\n}"
+                    "query ProductQuery {\n" +
+                    "\tProductDetail(productId:1){\n" +
+                    "\t\tproduct_id\n" +
+                    "\t\tproduct_price\n" +
+                    "\t\tproduct_price_format\n" +
+                    "\t\tproduct_name\n" +
+                    "\t\tproduct_description\n" +
+                    "\t\tproduct_image\n" +
+                    "\t\tadditional_product_image\n" +
+                    "\trating\n" +
+                    "\t}\n" +
+                    "}"
             }, toolbar),
             elem
         );

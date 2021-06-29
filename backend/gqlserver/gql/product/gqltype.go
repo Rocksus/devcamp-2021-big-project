@@ -6,29 +6,29 @@ var ProductType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Product",
 		Fields: graphql.Fields{
-			"id": &graphql.Field{
+			"product_id": &graphql.Field{
 				Type: graphql.Int,
 			},
-			"name": &graphql.Field{
+			"product_name": &graphql.Field{
 				Type: graphql.String,
 			},
-			"description": &graphql.Field{
+			"product_description": &graphql.Field{
 				Type: graphql.String,
 			},
-			"price": &graphql.Field{
+			"product_price": &graphql.Field{
 				Type: graphql.Int,
+			},
+			"product_price_format": &graphql.Field{
+				Type: graphql.String,
 			},
 			"rating": &graphql.Field{
 				Type: graphql.Float,
 			},
-			"imageURL": &graphql.Field{
+			"product_image": &graphql.Field{
 				Type: graphql.String,
 			},
-			"previewImageURL": &graphql.Field{
-				Type: graphql.String,
-			},
-			"slug": &graphql.Field{
-				Type: graphql.String,
+			"additional_product_image": &graphql.Field{
+				Type: graphql.NewList(graphql.String),
 			},
 		},
 	},

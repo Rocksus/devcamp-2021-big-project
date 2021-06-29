@@ -4,32 +4,30 @@ schema {
 }
 
 type Query {
-    product(id: Int!): Product
-    products(lastid: Int!, limit: Int!): [Product]
+    product(productId: Int!): ProductDetail
+    products(limit: Int, offset: Int): [ProductDetail]
 }
 
 type Mutation {
-    createProduct(product: ProductInput!): Product!
-    updateProduct(id: Int!, changes: ProductInput!): Product
+    createProduct(product: ProductInput!): ProductDetail!
+    updateProduct(id: Int!, changes: ProductInput!): ProductDetail
 }
 
-type Product {
-    id: Int!
-    name: String!
-    Description: String
-    Price: Int!
-    Rating: Float
-    ImageURL: String
-    PreviewImageURL: String
-    Slug: String
+type ProductDetail {
+    product_id: Int!
+    product_name: String!
+    product_description: String
+    product_price: Int!
+    rating: Float
+    product_image: String
+    additional_product_image: [String]
 }
 
 input ProductInput {
-    name: String!
-    Description: String
-    Price: Int!
-    Rating: Float
-    ImageURL: String
-    PreviewImageURL: String
-    Slug: String
+    product_name: String!
+    product_description: String
+    product_price: Int!
+    rating: Float
+    product_image: String
+    additional_product_image: [String]
 }

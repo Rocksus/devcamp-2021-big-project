@@ -59,24 +59,26 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
   redis:
     image: redis:alpine
+    ports:
+      - 6379:6379
   nsqlookupd:
     image: nsqio/nsq
     ports:
-      - "4160:4160"
-      - "4161:4161"
+      - 4160:4160
+      - 4161:4161
     command: /nsqlookupd
   nsqd:
     image: nsqio/nsq
     ports:
-      - "4150:4150"
-      - "4151:4151"
+      - 4150:4150
+      - 4151:4151
     depends_on:
       - nsqlookupd
     command: /nsqd -lookupd-tcp-address=nsqlookupd:4160 -broadcast-address=nsqd
   nsqadmin:
     image: nsqio/nsq
     ports:
-      - "4171:4171"
+      - 4171:4171
     depends_on:
       - nsqlookupd
       - nsqd

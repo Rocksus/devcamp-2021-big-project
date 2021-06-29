@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
+	"github.com/lib/pq"
 )
 
 type storage struct {
@@ -32,8 +33,7 @@ func (s *storage) AddProduct(ctx context.Context, data InsertProductRequest) (Pr
 		data.Price,
 		data.Rating,
 		data.ImageURL,
-		data.PreviewImageURL,
-		data.Slug,
+		pq.Array(&data.AdditionalImageURL),
 	).Scan(&id); err != nil {
 		log.Println("[ProductModule][AddProduct][Storage] problem querying to db, err: ", err.Error())
 		return resp, err
@@ -57,8 +57,7 @@ func (s *storage) GetProduct(ctx context.Context, id int64) (ProductResponse, er
 		&resp.Price,
 		&resp.Rating,
 		&resp.ImageURL,
-		&resp.PreviewImageURL,
-		&resp.Slug,
+		pq.Array(&resp.AdditionalImageURL),
 	); err != nil {
 		log.Println("[ProductModule][GetProduct] problem querying to db, err: ", err.Error())
 		return resp, err
@@ -90,8 +89,7 @@ func (s *storage) GetProductBatch(ctx context.Context, lastID int64, limit int) 
 			&rowData.Price,
 			&rowData.Rating,
 			&rowData.ImageURL,
-			&rowData.PreviewImageURL,
-			&rowData.Slug,
+			pq.Array(&rowData.AdditionalImageURL),
 		); err != nil {
 			log.Println("[ProductModule][GetProductBatch] problem with scanning db row, err: ", err.Error())
 			return resp, err

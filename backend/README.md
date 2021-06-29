@@ -40,13 +40,12 @@ Adding New Product
 curl --location --request POST 'http://localhost:9000/product' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "name": "product example",
-    "description": "An amazing example product!",
-    "price": 17500,
+    "product_name": "product example",
+    "product_description": "An amazing example product!",
+    "product_price": 17500,
     "rating": 0,
-    "image_url": "add_this_later",
-    "preview_image_url": "add_this_later",
-    "slug":"product-example"
+    "product_image": "https://images.tokopedia.net/img/cache/900/product-1/2020/7/2/16620763/16620763_b0f98181-2092-4a28-9035-d588efd495c1_1000_1000",
+    "additional_product_image": ["https://images.tokopedia.net/img/cache/900/product-1/2020/7/2/16620763/16620763_b75ad660-02f8-475c-bd3e-278d9205fbc2_1000_1000"]
 }'
 ```
 

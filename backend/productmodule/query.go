@@ -8,16 +8,14 @@ const (
 		price,
 		rating,
 		image_url,
-		preview_image_url,
-		slug
+		additional_image_url
 	) VALUES (
 		$1,
 		$2,
 		$3,
 		$4,
 		$5,
-		$6,
-		$7
+		$6
 	) returning id
 `
 	getProductQuery = `
@@ -27,8 +25,7 @@ const (
 		price,
 		rating,
 		image_url,
-		preview_image_url,
-		slug
+		additional_image_url
 	FROM
 		product
 	WHERE
@@ -40,9 +37,8 @@ const (
 		*
 	FROM
 		product
-	WHERE
-		id > $1
 	LIMIT $2
+	OFFSET $3
 `
 
 	updateProductQuery = `

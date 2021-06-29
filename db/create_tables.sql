@@ -5,6 +5,5 @@ CREATE TABLE product (
     price bigint NOT NULL DEFAULT 0,
     rating float NOT NULL DEFAULT 0,
     image_url text,
-    preview_image_url text,
-    slug varchar(50) NOT NULL UNIQUE
+    additional_image_url  text[]
 );

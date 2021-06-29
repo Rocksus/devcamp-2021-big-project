@@ -85,11 +85,11 @@ func (p *Module) GetProduct(ctx context.Context, id int64) (ProductResponse, err
 	return resp, nil
 }
 
-func (p *Module) GetProductBatch(ctx context.Context, lastID int64, limit int) ([]ProductResponse, error) {
+func (p *Module) GetProductBatch(ctx context.Context, limit, offset int) ([]ProductResponse, error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproductbatchdata")
 	defer span.Finish()
 
-	resp, err := p.Cache.GetProductBatch(ctx, lastID, limit)
+	resp, err := p.Cache.GetProductBatch(ctx, limit, offset)
 	if err == nil {
 		return resp, nil
 	}
@@ -97,13 +97,13 @@ func (p *Module) GetProductBatch(ctx context.Context, lastID int64, limit int) (
 		log.Println("[ProductModule][GetProductBatch] problem getting cache, err: ", err.Error())
 	}
 
-	resp, err = p.Storage.GetProductBatch(ctx, lastID, limit)
+	resp, err = p.Storage.GetProductBatch(ctx, limit, offset)
 	if err != nil {
 		log.Println("[ProductModule][GetProductBatch] problem getting storage data, err: ", err.Error())
 		return resp, err
 	}
 
-	if err := p.Cache.SetProductBatch(ctx, lastID, limit, resp); err != nil {
+	if err := p.Cache.SetProductBatch(ctx, limit, offset, resp); err != nil {
 		log.Println("[ProductModule][GetProductBatch] problem setting cache data, err: ", err.Error())
 	}
 

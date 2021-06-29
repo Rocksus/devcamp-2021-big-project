@@ -26,24 +26,24 @@ func (s *SchemaWrapper) Init() error {
 		Query: graphql.NewObject(graphql.ObjectConfig{
 			Name: "Query",
 			Fields: graphql.Fields{
-				"product": &graphql.Field{
+				"ProductDetail": &graphql.Field{
 					Type:        product.ProductType,
 					Description: "Get product by ID",
 					Args: graphql.FieldConfigArgument{
-						"id": &graphql.ArgumentConfig{
+						"productId": &graphql.ArgumentConfig{
 							Type: graphql.Int,
 						},
 					},
 					Resolve: s.productResolver.GetProduct(),
 				},
-				"products": &graphql.Field{
+				"ProductLists": &graphql.Field{
 					Type:        graphql.NewList(product.ProductType),
 					Description: "Get products by pagination",
 					Args: graphql.FieldConfigArgument{
-						"lastid": &graphql.ArgumentConfig{
+						"limit": &graphql.ArgumentConfig{
 							Type: graphql.Int,
 						},
-						"limit": &graphql.ArgumentConfig{
+						"offset": &graphql.ArgumentConfig{
 							Type: graphql.Int,
 						},
 					},
@@ -54,61 +54,55 @@ func (s *SchemaWrapper) Init() error {
 		Mutation: graphql.NewObject(graphql.ObjectConfig{
 			Name: "Mutation",
 			Fields: graphql.Fields{
-				"addProduct": &graphql.Field{
+				"AddProduct": &graphql.Field{
 					Type:        product.ProductType,
 					Description: "Create new product",
 					Args: graphql.FieldConfigArgument{
-						"name": &graphql.ArgumentConfig{
+						"product_name": &graphql.ArgumentConfig{
 							Type: graphql.NewNonNull(graphql.String),
 						},
-						"description": &graphql.ArgumentConfig{
+						"product_description": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
-						"price": &graphql.ArgumentConfig{
+						"product_price": &graphql.ArgumentConfig{
 							Type: graphql.NewNonNull(graphql.Int),
 						},
 						"rating": &graphql.ArgumentConfig{
 							Type: graphql.Float,
 						},
-						"imageURL": &graphql.ArgumentConfig{
+						"product_image": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
-						"previewImageURL": &graphql.ArgumentConfig{
-							Type: graphql.String,
-						},
-						"slug": &graphql.ArgumentConfig{
-							Type: graphql.NewNonNull(graphql.String),
+						"additional_product_image": &graphql.ArgumentConfig{
+							Type: graphql.NewList(graphql.String),
 						},
 					},
 					Resolve: s.productResolver.AddProduct(),
 				},
-				"updateProduct": &graphql.Field{
+				"UpdateProduct": &graphql.Field{
 					Type:        product.ProductType,
 					Description: "Update existing product",
 					Args: graphql.FieldConfigArgument{
-						"id": &graphql.ArgumentConfig{
+						"product_id": &graphql.ArgumentConfig{
 							Type: graphql.NewNonNull(graphql.Int),
 						},
-						"name": &graphql.ArgumentConfig{
+						"product_name": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
-						"description": &graphql.ArgumentConfig{
+						"product_description": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
-						"price": &graphql.ArgumentConfig{
+						"product_price": &graphql.ArgumentConfig{
 							Type: graphql.Int,
 						},
 						"rating": &graphql.ArgumentConfig{
 							Type: graphql.Float,
 						},
-						"imageURL": &graphql.ArgumentConfig{
+						"product_image": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
-						"previewImageURL": &graphql.ArgumentConfig{
-							Type: graphql.String,
-						},
-						"slug": &graphql.ArgumentConfig{
-							Type: graphql.String,
+						"additional_product_image": &graphql.ArgumentConfig{
+							Type: graphql.NewList(graphql.String),
 						},
 					},
 					Resolve: s.productResolver.UpdateProduct(),

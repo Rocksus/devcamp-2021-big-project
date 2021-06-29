@@ -42,6 +42,7 @@ func (h *Handler) Handle() http.Handler {
 			log.Println("[GQLHandler][Handle] there were some errors, errs: ", result.Errors)
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(result)
 	})
 }

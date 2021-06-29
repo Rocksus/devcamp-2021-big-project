@@ -43,7 +43,7 @@ func (p *Module) GetProduct(id int64) (ProductResponse, error) {
 	return resp, nil
 }
 
-func (p *Module) GetProductBatch(lastID int64, limit int) ([]ProductResponse, error) {
+func (p *Module) GetProductBatch(limit int, offset int) ([]ProductResponse, error) {
 	// TODO: implement this
 
 	return nil, nil

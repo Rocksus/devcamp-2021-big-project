@@ -67,13 +67,13 @@ func (s *storage) GetProduct(ctx context.Context, id int64) (ProductResponse, er
 	return resp, nil
 }
 
-func (s *storage) GetProductBatch(ctx context.Context, lastID int64, limit int) ([]ProductResponse, error) {
+func (s *storage) GetProductBatch(ctx context.Context, limit, offset int) ([]ProductResponse, error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproductbatch.storage")
 	defer span.Finish()
 
 	resp := make([]ProductResponse, 0)
 
-	rows, err := s.ProductDB.QueryContext(ctx, getProductBatchQuery, lastID, limit)
+	rows, err := s.ProductDB.QueryContext(ctx, getProductBatchQuery, limit, offset)
 	if err != nil {
 		log.Println("[ProductModule][GetProductBatch] problem querying to db, err: ", err.Error())
 		return resp, err

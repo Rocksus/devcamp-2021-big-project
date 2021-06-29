@@ -63,13 +63,13 @@ func (s *Cache) SetProduct(ctx context.Context, data ProductResponse) error {
 	return nil
 }
 
-func (s *Cache) GetProductBatch(ctx context.Context, lastID int64, limit int) ([]ProductResponse, error) {
+func (s *Cache) GetProductBatch(ctx context.Context, limit, offset int) ([]ProductResponse, error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproductbatchdata.cache")
 	defer span.Finish()
 
 	var resp []ProductResponse
 
-	key := fmt.Sprintf(cacheKeyProductBatch, lastID, limit)
+	key := fmt.Sprintf(cacheKeyProductBatch, limit, offset)
 	span.SetTag("cachekey", key)
 
 	cachedData, err := redis.Bytes(s.ProductCache.Do(ctx, "GET", key))
@@ -85,11 +85,11 @@ func (s *Cache) GetProductBatch(ctx context.Context, lastID int64, limit int) ([
 	return resp, nil
 }
 
-func (s *Cache) SetProductBatch(ctx context.Context, lastID int64, limit int, data []ProductResponse) error {
+func (s *Cache) SetProductBatch(ctx context.Context, limit, offset int, data []ProductResponse) error {
 	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproductbatch.cache.set")
 	defer span.Finish()
 
-	key := fmt.Sprintf(cacheKeyProductBatch, lastID, limit)
+	key := fmt.Sprintf(cacheKeyProductBatch, limit, offset)
 	span.SetTag("cachekey", key)
 
 	preparedData, err := json.Marshal(data)

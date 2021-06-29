@@ -77,6 +77,7 @@ func (p *Module) GetProduct(ctx context.Context, id int64) (ProductResponse, err
 		log.Println("[ProductModule][GetProduct] problem getting storage data, err: ", err.Error())
 		return resp, err
 	}
+	resp.PriceFormat = formatPrice(resp.Price)
 
 	if err := p.Cache.SetProduct(ctx, resp); err != nil {
 		log.Println("[ProductModule][GetProduct] problem setting cache data, err: ", err.Error())

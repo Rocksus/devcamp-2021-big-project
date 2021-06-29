@@ -14,7 +14,7 @@ import (
 
 type Module struct {
 	Storage  *storage
-	Cache    *cache
+	Cache    *Cache
 	Producer *messaging.Producer
 }
 

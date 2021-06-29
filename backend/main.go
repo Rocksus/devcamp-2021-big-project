@@ -37,6 +37,7 @@ func main() {
 		MaxIdle:         5,
 		IdleTimeout:     240 * time.Second,
 		MaxConnLifetime: 0,
+		Address:         "redis:6379",
 	}
 
 	cache := cache.InitializeRedis(cacheConfig)

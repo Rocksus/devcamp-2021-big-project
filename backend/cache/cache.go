@@ -14,7 +14,7 @@ type Redis struct {
 
 // Config holds configuration values
 type Config struct {
-	address         string
+	Address         string
 	MaxActive       int
 	MaxIdle         int
 	IdleTimeout     time.Duration
@@ -29,7 +29,7 @@ func InitializeRedis(cfg Config) *Redis {
 		IdleTimeout:     cfg.IdleTimeout,
 		MaxConnLifetime: cfg.MaxConnLifetime,
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", cfg.address)
+			c, err := redis.Dial("tcp", cfg.Address)
 			if err != nil {
 				return nil, err
 			}
@@ -46,7 +46,7 @@ func (r *Redis) Do(ctx context.Context, command string, args ...interface{}) (in
 	}
 	defer conn.Close() // close connection after we use it
 
-	return conn.Do(command, args)
+	return conn.Do(command, args...)
 }
 
 // Close closes redis pool

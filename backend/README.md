@@ -45,7 +45,9 @@ curl --location --request POST 'http://localhost:9000/product' \
     "product_price": 17500,
     "rating": 0,
     "product_image": "https://images.tokopedia.net/img/cache/900/product-1/2020/7/2/16620763/16620763_b0f98181-2092-4a28-9035-d588efd495c1_1000_1000",
-    "additional_product_image": ["https://images.tokopedia.net/img/cache/900/product-1/2020/7/2/16620763/16620763_b75ad660-02f8-475c-bd3e-278d9205fbc2_1000_1000"]
+    "additional_product_image": [
+        "https://images.tokopedia.net/img/cache/900/product-1/2020/7/2/16620763/16620763_b75ad660-02f8-475c-bd3e-278d9205fbc2_1000_1000"
+    ]
 }'
 ```
 
@@ -58,7 +60,7 @@ curl --location --request GET 'http://localhost:9000/product/1'
 Getting Multiple Products
 
 ```shell
-curl --location --request GET 'http://localhost:9000/products?limit=3&lastid=0'
+curl --location --request GET 'http://localhost:9000/products?limit=10&offset=0'
 ```
 
 Updating Product
@@ -81,7 +83,7 @@ Adding New Product
 curl --location --request POST 'http://localhost:9000/graphql' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "query": "mutation { addProduct(name:\"cool new product\" description:\"This is a cool new product. Must have if you are trendy\" price:299000 rating:5 slug:\"cool-new-product\") { id } }"
+    "query": "mutation { AddProduct(product_name:\"cool new product\" product_description:\"This is a cool new product. Must have if you are trendy\" product_price:299000 rating:5 product_image:\"https://images.tokopedia.net/img/cache/900/product-1/2020/7/2/16620763/16620763_b0f98181-2092-4a28-9035-d588efd495c1_1000_1000\") { product_id } }"
 }'
 ```
 
@@ -91,7 +93,7 @@ Getting Product Data
 curl --location --request POST 'http://localhost:9000/graphql' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "query": "query { product(id:1) { id name description price rating imageURL previewImageURL slug} }"
+    "query": "query { ProductDetail(productId:1) {product_id product_name product_description product_price rating product_image additional_product_image} }"
 }'
 ```
 
@@ -101,7 +103,7 @@ Getting Multiple Products
 curl --location --request POST 'http://localhost:9000/graphql' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "query": "query { products(limit:5) { id name description price rating imageURL previewImageURL slug} }"
+    "query": "query { ProductLists(limit:2, offset:1) {product_id product_name product_description product_price rating product_image additional_product_image} }"
 }'
 ```
 
@@ -111,7 +113,7 @@ Updating Product
 curl --location --request POST 'http://localhost:9000/graphql' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "query": "mutation { updateProduct(id:1 price:499000) { id } }"
+    "query": "mutation { UpdateProduct(product_id:1 product_price:499000) { product_id } }"
 }'
 ```
 

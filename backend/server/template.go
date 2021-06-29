@@ -25,6 +25,7 @@ func RenderResponse(w http.ResponseWriter, statusCode int, data interface{}, sta
 	}
 
 	w.WriteHeader(statusCode)
+	w.Header().Set("Content-Type", "application/json")
 	d, _ := json.Marshal(resp)
 	w.Write(d)
 	return
@@ -39,6 +40,7 @@ func RenderError(w http.ResponseWriter, statusCode int, err error, startTime tim
 	}
 
 	w.WriteHeader(statusCode)
+	w.Header().Set("Content-Type", "application/json")
 	d, _ := json.Marshal(resp)
 	w.Write(d)
 	return

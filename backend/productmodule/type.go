@@ -3,6 +3,8 @@ package productmodule
 import (
 	"errors"
 	"fmt"
+
+	"github.com/lib/pq"
 )
 
 const (
@@ -15,24 +17,23 @@ const (
 )
 
 type ProductResponse struct {
-	ID              int64   `json:"id,omitempty" db:"id"`
-	Name            string  `json:"name,omitempty" db:"name"`
-	Description     string  `json:"description,omitempty" db:"description"`
-	Price           int64   `json:"price,omitempty" db:"price"`
-	Rating          float32 `json:"rating,omitempty" db:"rating"`
-	ImageURL        string  `json:"image_url,omitempty" db:"image_url"`
-	PreviewImageURL string  `json:"preview_image_url,omitempty" db:"preview_image_url"`
-	Slug            string  `json:"slug,omitempty" db:"slug"`
+	ID                 int64    `json:"product_id,omitempty" db:"id"`
+	Name               string   `json:"product_name,omitempty" db:"name"`
+	Description        string   `json:"product_description,omitempty" db:"description"`
+	Price              int64    `json:"product_price,omitempty" db:"price"`
+	PriceFormat        string   `json:"product_price_format,omitempty" db:"-"`
+	Rating             float32  `json:"rating,omitempty" db:"rating"`
+	ImageURL           string   `json:"product_image,omitempty" db:"image_url"`
+	AdditionalImageURL []string `json:"additional_product_image,omitempty" db:"preview_image_url"`
 }
 
 type InsertProductRequest struct {
-	Name            string  `json:"name"`
-	Description     string  `json:"description"`
-	Price           int64   `json:"price"`
-	Rating          float32 `json:"rating"`
-	ImageURL        string  `json:"image_url"`
-	PreviewImageURL string  `json:"preview_image_url"`
-	Slug            string  `json:"slug"`
+	Name               string   `json:"product_name"`
+	Description        string   `json:"product_description"`
+	Price              int64    `json:"product_price"`
+	Rating             float32  `json:"rating"`
+	ImageURL           string   `json:"product_image"`
+	AdditionalImageURL []string `json:"additional_product_image"`
 }
 
 func (p InsertProductRequest) Sanitize() error {
@@ -49,13 +50,12 @@ func (p InsertProductRequest) Sanitize() error {
 }
 
 type UpdateProductRequest struct {
-	Name            string  `json:"name"`
-	Description     string  `json:"description"`
-	Price           int64   `json:"price"`
-	Rating          float32 `json:"rating"`
-	ImageURL        string  `json:"image_url"`
-	PreviewImageURL string  `json:"preview_image_url"`
-	Slug            string  `json:"slug"`
+	Name               string   `json:"product_name"`
+	Description        string   `json:"product_description"`
+	Price              int64    `json:"product_price"`
+	Rating             float32  `json:"rating"`
+	ImageURL           string   `json:"product_image"`
+	AdditionalImageURL []string `json:"additional_product_image"`
 }
 
 func (p UpdateProductRequest) BuildQuery(id int64) (string, []interface{}) {
@@ -88,14 +88,9 @@ func (p UpdateProductRequest) BuildQuery(id int64) (string, []interface{}) {
 		fieldValues = append(fieldValues, p.ImageURL)
 		i++
 	}
-	if p.PreviewImageURL != "" {
-		fieldQuery += fmt.Sprintf("preview_image_url=$%d,", i)
-		fieldValues = append(fieldValues, p.PreviewImageURL)
-		i++
-	}
-	if p.Slug != "" {
-		fieldQuery += fmt.Sprintf("slug=$%d,", i)
-		fieldValues = append(fieldValues, p.Slug)
+	if len(p.AdditionalImageURL) > 0 {
+		fieldQuery += fmt.Sprintf("additional_image_url=$%d,", i)
+		fieldValues = append(fieldValues, pq.Array(p.AdditionalImageURL))
 		i++
 	}
 

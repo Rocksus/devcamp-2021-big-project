@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+
+	"github.com/lib/pq"
 )
 
 type storage struct {
@@ -26,8 +28,7 @@ func (s *storage) AddProduct(data InsertProductRequest) (ProductResponse, error)
 		data.Price,
 		data.Rating,
 		data.ImageURL,
-		data.PreviewImageURL,
-		data.Slug,
+		pq.Array(&data.AdditionalImageURL),
 	).Scan(&id); err != nil {
 		log.Println("[ProductModule][AddProduct][Storage] problem querying to db, err: ", err.Error())
 		return resp, err
@@ -48,8 +49,7 @@ func (s *storage) GetProduct(id int64) (ProductResponse, error) {
 		&resp.Price,
 		&resp.Rating,
 		&resp.ImageURL,
-		&resp.PreviewImageURL,
-		&resp.Slug,
+		pq.Array(&resp.AdditionalImageURL),
 	); err != nil {
 		log.Println("[ProductModule][GetProduct] problem querying to db, err: ", err.Error())
 		return resp, err
@@ -78,8 +78,7 @@ func (s *storage) GetProductBatch(lastID int64, limit int) ([]ProductResponse, e
 			&rowData.Price,
 			&rowData.Rating,
 			&rowData.ImageURL,
-			&rowData.PreviewImageURL,
-			&rowData.Slug,
+			pq.Array(&rowData.AdditionalImageURL),
 		); err != nil {
 			log.Println("[ProductModule][GetProductBatch] problem with scanning db row, err: ", err.Error())
 			return resp, err

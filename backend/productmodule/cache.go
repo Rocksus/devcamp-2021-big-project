@@ -105,3 +105,17 @@ func (s *Cache) SetProductBatch(ctx context.Context, limit, offset int, data []P
 
 	return nil
 }
+
+func (s *Cache) DelProductCache(ctx context.Context, id int64) error {
+	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproduct.cache.del")
+	defer span.Finish()
+	key := fmt.Sprintf(cacheKeyProduct, id)
+	span.SetTag("cachekey", key)
+
+	if _, err := s.ProductCache.Do(ctx, "DEL", key); err != nil {
+		log.Println("[ProductModule][SetProduct][Cache] problem deleting cache, err: ", err.Error())
+		return err
+	}
+
+	return nil
+}

@@ -105,6 +105,9 @@ func (p *Module) UpdateProduct(ctx context.Context, id int64, data UpdateProduct
 		log.Println("[ProductModule][UpdateProduct] problem getting storage data, err: ", err.Error())
 		return resp, err
 	}
+	if err := p.Cache.DelProductCache(ctx, id); err != nil {
+		log.Println("[ProductModule][UpdateProduct] problem deleting cache data, err: ", err.Error())
+	}
 
 	return resp, nil
 }

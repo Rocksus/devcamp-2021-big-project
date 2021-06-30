@@ -7,8 +7,6 @@ services:
       - db
       - jaeger
       - redis
-      - nsqd
-      - nsqlookupd
     ports:
       - 9000:9000
   db:
@@ -22,6 +20,10 @@ services:
       - 9001:5432
     volumes:
       - ./db/db-data:/var/lib/postgresql/data
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
   jaeger:
     image: jaegertracing/all-in-one:1.22
     ports:
@@ -57,29 +59,3 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=grafana
       - GF_SECURITY_ADMIN_PASSWORD=admin
-  redis:
-    image: redis:alpine
-    ports:
-      - 6379:6379
-  nsqlookupd:
-    image: nsqio/nsq
-    ports:
-      - 4160:4160
-      - 4161:4161
-    command: /nsqlookupd
-  nsqd:
-    image: nsqio/nsq
-    ports:
-      - 4150:4150
-      - 4151:4151
-    depends_on:
-      - nsqlookupd
-    command: /nsqd -lookupd-tcp-address=nsqlookupd:4160 -broadcast-address=nsqd
-  nsqadmin:
-    image: nsqio/nsq
-    ports:
-      - 4171:4171
-    depends_on:
-      - nsqlookupd
-      - nsqd
-    command: /nsqadmin -lookupd-http-address=nsqlookupd:4161

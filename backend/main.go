@@ -13,7 +13,6 @@ import (
 	"github.com/Rocksus/devcamp-2021-big-project/backend/database"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/gqlserver/gql/product"
-	"github.com/Rocksus/devcamp-2021-big-project/backend/messaging"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/monitoring"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/productmodule"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/server"
@@ -52,13 +51,7 @@ func main() {
 	}
 	db := database.GetDatabaseConnection(dbConfig)
 
-	producerConfig := messaging.ProducerConfig{
-		NsqdAddress: "nsqd:4150",
-	}
-
-	messageProducer := messaging.NewProducer(producerConfig)
-
-	pm := productmodule.NewProductModule(db, cache, messageProducer)
+	pm := productmodule.NewProductModule(db, cache)
 	ph := productHandler.NewProductHandler(pm)
 	pr := product.NewResolver(pm)
 

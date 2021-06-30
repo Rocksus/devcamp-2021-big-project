@@ -5,24 +5,20 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/Rocksus/devcamp-2021-big-project/backend/messaging"
-
 	"github.com/Rocksus/devcamp-2021-big-project/backend/cache"
 	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 	"github.com/gomodule/redigo/redis"
 )
 
 type Module struct {
-	Storage  *storage
-	Cache    *Cache
-	Producer *messaging.Producer
+	Storage *storage
+	Cache   *Cache
 }
 
-func NewProductModule(db *sql.DB, redisCache *cache.Redis, p *messaging.Producer) *Module {
+func NewProductModule(db *sql.DB, redisCache *cache.Redis) *Module {
 	return &Module{
-		Storage:  newStorage(db),
-		Cache:    newCache(redisCache),
-		Producer: p,
+		Storage: newStorage(db),
+		Cache:   newCache(redisCache),
 	}
 }
 
@@ -51,18 +47,6 @@ func (p *Module) GetProduct(ctx context.Context, id int64) (ProductResponse, err
 	span.SetTag("id", id)
 	var resp ProductResponse
 	var err error
-
-	defer func() {
-		// publish view data to be handled by consumer
-		message := producerMessage{
-			Event:         "view",
-			ProductDetail: resp,
-		}
-
-		if err := p.Producer.Publish(topicProductView, message); err != nil {
-			log.Println("[ProductModule][GetProduct] failed to publish message data, err: ", err.Error())
-		}
-	}()
 
 	resp, err = p.Cache.GetProduct(ctx, id)
 	if err == nil {

@@ -83,10 +83,3 @@ services:
       - nsqlookupd
       - nsqd
     command: /nsqadmin -lookupd-http-address=nsqlookupd:4161
-  consumer:
-    build: ./consumer
-    restart: always
-    depends_on:
-      - jaeger
-      - redis
-      - nsqlookupd

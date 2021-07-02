@@ -51,8 +51,7 @@ func (p *Module) GetProduct(ctx context.Context, id int64) (ProductResponse, err
 	resp, err = p.Cache.GetProduct(ctx, id)
 	if err == nil {
 		return resp, nil
-	}
-	if err != nil && err != redis.ErrNil {
+	} else if err != redis.ErrNil {
 		log.Println("[ProductModule][GetProduct] problem getting cache data, err: ", err.Error())
 	}
 
@@ -77,8 +76,7 @@ func (p *Module) GetProductBatch(ctx context.Context, limit, offset int) ([]Prod
 	resp, err := p.Cache.GetProductBatch(ctx, limit, offset)
 	if err == nil {
 		return resp, nil
-	}
-	if err != nil && err != redis.ErrNil {
+	} else if err != redis.ErrNil {
 		log.Println("[ProductModule][GetProductBatch] problem getting cache, err: ", err.Error())
 	}
 

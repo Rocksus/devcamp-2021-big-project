@@ -39,8 +39,8 @@ func InitializeRedis(cfg Config) *Redis {
 }
 
 // Do does operation to redis with given command & arguments
-func (r *Redis) Do(ctx context.Context, command string, args ...interface{}) (interface{}, error) {
-	conn, err := r.pool.GetContext(ctx)
+func (r *Redis) Do(command string, args ...interface{}) (interface{}, error) {
+	conn, err := r.pool.GetContext(context.Background())
 	if err != nil {
 		return nil, err
 	}

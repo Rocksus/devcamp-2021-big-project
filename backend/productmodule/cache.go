@@ -1,13 +1,11 @@
 package productmodule
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/Rocksus/devcamp-2021-big-project/backend/cache"
-	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 	"github.com/gomodule/redigo/redis"
 )
 
@@ -21,16 +19,12 @@ func newCache(r *cache.Redis) *Cache {
 	}
 }
 
-func (s *Cache) GetProduct(ctx context.Context, id int64) (ProductResponse, error) {
-	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproduct.cache")
-	defer span.Finish()
-
+func (s *Cache) GetProduct(id int64) (ProductResponse, error) {
 	var resp ProductResponse
 
 	key := fmt.Sprintf(cacheKeyProduct, id)
-	span.SetTag("cachekey", key)
 
-	cachedData, err := redis.Bytes(s.ProductCache.Do(ctx, "GET", key))
+	cachedData, err := redis.Bytes(s.ProductCache.Do("GET", key))
 	if err != nil {
 		return resp, err
 	}
@@ -43,11 +37,8 @@ func (s *Cache) GetProduct(ctx context.Context, id int64) (ProductResponse, erro
 	return resp, nil
 }
 
-func (s *Cache) SetProduct(ctx context.Context, data ProductResponse) error {
-	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproduct.cache.set")
-	defer span.Finish()
+func (s *Cache) SetProduct(data ProductResponse) error {
 	key := fmt.Sprintf(cacheKeyProduct, data.ID)
-	span.SetTag("cachekey", key)
 
 	preparedData, err := json.Marshal(data)
 	if err != nil {
@@ -55,7 +46,7 @@ func (s *Cache) SetProduct(ctx context.Context, data ProductResponse) error {
 		return err
 	}
 
-	if _, err := s.ProductCache.Do(ctx, "SET", key, preparedData); err != nil {
+	if _, err := s.ProductCache.Do("SET", key, preparedData); err != nil {
 		log.Println("[ProductModule][SetProduct][Cache] problem setting cache, err: ", err.Error())
 		return err
 	}
@@ -63,16 +54,12 @@ func (s *Cache) SetProduct(ctx context.Context, data ProductResponse) error {
 	return nil
 }
 
-func (s *Cache) GetProductBatch(ctx context.Context, limit, offset int) ([]ProductResponse, error) {
-	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproductbatchdata.cache")
-	defer span.Finish()
-
+func (s *Cache) GetProductBatch(limit, offset int) ([]ProductResponse, error) {
 	var resp []ProductResponse
 
 	key := fmt.Sprintf(cacheKeyProductBatch, limit, offset)
-	span.SetTag("cachekey", key)
 
-	cachedData, err := redis.Bytes(s.ProductCache.Do(ctx, "GET", key))
+	cachedData, err := redis.Bytes(s.ProductCache.Do("GET", key))
 	if err != nil {
 		return resp, err
 	}
@@ -85,12 +72,8 @@ func (s *Cache) GetProductBatch(ctx context.Context, limit, offset int) ([]Produ
 	return resp, nil
 }
 
-func (s *Cache) SetProductBatch(ctx context.Context, limit, offset int, data []ProductResponse) error {
-	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproductbatch.cache.set")
-	defer span.Finish()
-
+func (s *Cache) SetProductBatch(limit, offset int, data []ProductResponse) error {
 	key := fmt.Sprintf(cacheKeyProductBatch, limit, offset)
-	span.SetTag("cachekey", key)
 
 	preparedData, err := json.Marshal(data)
 	if err != nil {
@@ -98,7 +81,7 @@ func (s *Cache) SetProductBatch(ctx context.Context, limit, offset int, data []P
 		return err
 	}
 
-	if _, err := s.ProductCache.Do(ctx, "SET", key, preparedData); err != nil {
+	if _, err := s.ProductCache.Do("SET", key, preparedData); err != nil {
 		log.Println("[ProductModule][SetProductBatch][Cache] problem setting cache, err: ", err.Error())
 		return err
 	}
@@ -106,13 +89,10 @@ func (s *Cache) SetProductBatch(ctx context.Context, limit, offset int, data []P
 	return nil
 }
 
-func (s *Cache) DelProductCache(ctx context.Context, id int64) error {
-	span, ctx := tracer.StartSpanFromContext(ctx, "productmodule.getproduct.cache.del")
-	defer span.Finish()
+func (s *Cache) DelProductCache(id int64) error {
 	key := fmt.Sprintf(cacheKeyProduct, id)
-	span.SetTag("cachekey", key)
 
-	if _, err := s.ProductCache.Do(ctx, "DEL", key); err != nil {
+	if _, err := s.ProductCache.Do("DEL", key); err != nil {
 		log.Println("[ProductModule][SetProduct][Cache] problem deleting cache, err: ", err.Error())
 		return err
 	}

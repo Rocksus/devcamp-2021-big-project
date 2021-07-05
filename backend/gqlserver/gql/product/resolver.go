@@ -1,12 +1,9 @@
 package product
 
 import (
-	"context"
-
 	"github.com/graphql-go/graphql"
 
 	"github.com/Rocksus/devcamp-2021-big-project/backend/productmodule"
-	"github.com/Rocksus/devcamp-2021-big-project/backend/tracer"
 )
 
 type Resolver struct {
@@ -21,8 +18,6 @@ func NewResolver(p *productmodule.Module) *Resolver {
 
 func (r *Resolver) AddProduct() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (interface{}, error) {
-		span, ctx := tracer.StartSpanFromContext(context.Background(), "gqlresolver.addproduct")
-		defer span.Finish()
 		name, _ := p.Args["product_name"].(string)
 		description, _ := p.Args["product_description"].(string)
 		price, _ := p.Args["product_price"].(int)
@@ -39,25 +34,20 @@ func (r *Resolver) AddProduct() graphql.FieldResolveFn {
 			AdditionalImageURL: additionalImageURL,
 		}
 
-		return r.p.AddProduct(ctx, req)
+		return r.p.AddProduct(req)
 	}
 }
 
 func (r *Resolver) GetProduct() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (interface{}, error) {
-		span, ctx := tracer.StartSpanFromContext(context.Background(), "gqlresolver.getproduct")
-		defer span.Finish()
 		id, _ := p.Args["productId"].(int)
 
-		return r.p.GetProduct(ctx, int64(id))
+		return r.p.GetProduct(int64(id))
 	}
 }
 
 func (r *Resolver) GetProductBatch() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (interface{}, error) {
-		span, ctx := tracer.StartSpanFromContext(context.Background(), "gqlresolver.getproductbatch")
-		defer span.Finish()
-
 		limit, ok := p.Args["limit"].(int)
 		if !ok || limit < 0 {
 			limit = 10
@@ -67,15 +57,12 @@ func (r *Resolver) GetProductBatch() graphql.FieldResolveFn {
 			offset = 0
 		}
 
-		return r.p.GetProductBatch(ctx, limit, offset)
+		return r.p.GetProductBatch(limit, offset)
 	}
 }
 
 func (r *Resolver) UpdateProduct() graphql.FieldResolveFn {
 	return func(p graphql.ResolveParams) (interface{}, error) {
-		span, ctx := tracer.StartSpanFromContext(context.Background(), "gqlresolver.updateproduct")
-		defer span.Finish()
-
 		id, _ := p.Args["product_id"].(int)
 		name, _ := p.Args["product_name"].(string)
 		description, _ := p.Args["product_description"].(string)
@@ -93,6 +80,6 @@ func (r *Resolver) UpdateProduct() graphql.FieldResolveFn {
 			AdditionalImageURL: additionalImageURL,
 		}
 
-		return r.p.UpdateProduct(ctx, int64(id), req)
+		return r.p.UpdateProduct(int64(id), req)
 	}
 }

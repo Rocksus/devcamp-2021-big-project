@@ -19,9 +19,9 @@ import (
 
 func main() {
 	cacheConfig := cache.Config{
-		MaxActive:       20,
+		MaxActive:       200,
 		MaxIdle:         5,
-		IdleTimeout:     240 * time.Second,
+		IdleTimeout:     3 * time.Second,
 		MaxConnLifetime: 0,
 		Address:         "redis:6379",
 	}

@@ -3,6 +3,7 @@ package productmodule
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/lib/pq"
@@ -59,10 +60,16 @@ func (s *storage) GetProduct(id int64) (ProductResponse, error) {
 	return resp, nil
 }
 
-func (s *storage) GetProductBatch(limit int, offset int) ([]ProductResponse, error) {
+func (s *storage) GetProductBatch(keyword string, limit int, offset int) ([]ProductResponse, error) {
+	var err error
 	resp := make([]ProductResponse, 0)
 
-	rows, err := s.ProductDB.Query(getProductBatchQuery, limit, offset)
+	if keyword == "" {
+		rows, err := s.ProductDB.Query(getProductBatchQuery, limit, offset)
+	} else {
+		like_query_string := fmt.Sprintf("%s%v%s", "%", keyword, "%")
+		rows, err := s.ProductDB.Query(getProductBatchByKeywordQuery, like_query_string, limit, offset)
+	}
 	if err != nil {
 		log.Println("[ProductModule][GetProductBatch] problem querying to db, err: ", err.Error())
 		return resp, err

@@ -62,7 +62,8 @@ func (s *storage) GetProduct(id int64) (ProductResponse, error) {
 func (s *storage) GetProductBatch(limit int, offset int, keyword string) ([]ProductResponse, error) {
 	resp := make([]ProductResponse, 0)
 
-	rows, err := s.ProductDB.Query(getProductBatchQuery, limit, offset, keyword)
+	keywordQuery := "%" + keyword + "%"
+	rows, err := s.ProductDB.Query(getProductBatchQuery, limit, offset, keywordQuery)
 	if err != nil {
 		log.Println("[ProductModule][GetProductBatch] problem querying to db, err: ", err.Error())
 		return resp, err

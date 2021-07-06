@@ -2,7 +2,6 @@ package product
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -53,7 +52,6 @@ func (p *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	server.RenderResponse(w, http.StatusCreated, resp, timeStart)
-	return
 }
 
 func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
@@ -74,10 +72,11 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	server.RenderResponse(w, http.StatusOK, resp, timeStart)
-	return
 }
 
 func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
+	timeStart := time.Now()
+	
 	var limit int
 	var offset int
 
@@ -92,11 +91,15 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 	if err != nil || offset < 0 {
 		offset = 0
 	}
+	search := vars.Get("search")
 
-	// TODO: remove the placeholder println and implement this function
-	fmt.Println(limit, offset)
+	resp, err := p.product.GetProductBatch(limit, offset, search)
+	if err != nil {
+		server.RenderError(w, http.StatusBadRequest, err, timeStart)
+		return
+	}
 
-	return
+	server.RenderResponse(w, http.StatusOK, resp, timeStart)
 }
 
 func (p *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
@@ -130,5 +133,4 @@ func (p *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	server.RenderResponse(w, http.StatusCreated, resp, timeStart)
-	return
 }

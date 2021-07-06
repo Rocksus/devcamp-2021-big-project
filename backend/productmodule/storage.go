@@ -3,6 +3,7 @@ package productmodule
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/lib/pq"
@@ -59,10 +60,35 @@ func (s *storage) GetProduct(id int64) (ProductResponse, error) {
 	return resp, nil
 }
 
-func (s *storage) GetProductBatch(limit int, offset int) ([]ProductResponse, error) {
+func (s *storage) GetProductBatch(limit int, offset int, searchNameKeyWord, searchDescriptionKeyword string) ([]ProductResponse, error) {
 	resp := make([]ProductResponse, 0)
 
-	rows, err := s.ProductDB.Query(getProductBatchQuery, limit, offset)
+	var rows *sql.Rows
+	var err error
+
+	var searchQuery string
+	searchQueryCount := 0
+	searchQueryVal := []interface{}{}
+
+	if searchNameKeyWord != "" {
+		searchQueryCount++
+		searchQuery += fmt.Sprintf("name like $%d", searchQueryCount)
+		searchQueryVal = append(searchQueryVal, fmt.Sprintf("%%%s%%", searchNameKeyWord))
+	}
+	if searchDescriptionKeyword != "" {
+		if searchQuery != "" {
+			searchQuery += " and "
+		}
+		searchQueryCount++
+		searchQuery += fmt.Sprintf("description like $%d", searchQueryCount)
+		searchQueryVal = append(searchQueryVal, fmt.Sprintf("%%%s%%", searchDescriptionKeyword))
+	}
+	searchQueryVal = append(searchQueryVal, limit, offset)
+	if searchQueryCount > 0 {
+		rows, err = s.ProductDB.Query(fmt.Sprintf("%s WHERE %s LIMIT $%d OFFSET $%d", getAllProductQuery, searchQuery, 1+searchQueryCount, 2+searchQueryCount), searchQueryVal...)
+	} else {
+		rows, err = s.ProductDB.Query(getProductBatchQuery, limit, offset)
+	}
 	if err != nil {
 		log.Println("[ProductModule][GetProductBatch] problem querying to db, err: ", err.Error())
 		return resp, err

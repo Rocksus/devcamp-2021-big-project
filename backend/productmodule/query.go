@@ -32,6 +32,13 @@ const (
 		id=$1
 `
 
+	getAllProductQuery = `
+		SELECT
+			*
+		FROM
+			product
+	`
+
 	getProductBatchQuery = `
 	SELECT
 		*

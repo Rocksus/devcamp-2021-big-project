@@ -58,6 +58,13 @@ type UpdateProductRequest struct {
 	AdditionalImageURL []string `json:"additional_product_image"`
 }
 
+type GetProductBatchRequest struct {
+	Name        string `json:"product_name"`
+	Description string `json:"product_description"`
+	Limit       int    `json:"limit"`
+	Offset      int    `json:"offset"`
+}
+
 func (p UpdateProductRequest) BuildQuery(id int64) (string, []interface{}) {
 	var fieldQuery string
 	fieldValues := make([]interface{}, 0)

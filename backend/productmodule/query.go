@@ -37,7 +37,8 @@ const (
 		*
 	FROM
 		product
-	WHERE name LIKE $3 OR description LIKE $3
+	WHERE 
+		name LIKE $3 OR description LIKE $3
 	LIMIT $1
 	OFFSET $2
 `

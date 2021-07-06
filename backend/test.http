@@ -1,0 +1,12 @@
+POST http://localhost:9000/product
+Content-Type: application/json
+Accept: application/json
+{
+  "product_name": "Pisang goreng",
+  "product_description": "awwww",
+  "product_price": 12000,
+  "rating": 4.5,
+  "quantity": 10,
+  "product_image": "https://images.tokopedia.net/img/cache/900/product-1/2020/7/2/16620763/16620763_b0f98181-2092-4a28-9035-d588efd495c1_1000_1000",
+  "additional_product_image": []
+}

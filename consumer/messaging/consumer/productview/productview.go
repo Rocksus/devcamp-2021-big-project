@@ -2,22 +2,23 @@ package productview
 
 import (
 	"encoding/json"
-	"github.com/nsqio/go-nsq"
 	"log"
+
+	"github.com/nsqio/go-nsq"
 )
 
 type Consumer struct {
 }
 
 type ProductResponse struct {
-	ID              int64   `json:"id,omitempty"`
-	Name            string  `json:"name,omitempty"`
-	Description     string  `json:"description,omitempty"`
-	Price           int64   `json:"price,omitempty"`
-	Rating          float32 `json:"rating,omitempty"`
-	ImageURL        string  `json:"image_url,omitempty"`
-	PreviewImageURL string  `json:"preview_image_url,omitempty"`
-	Slug            string  `json:"slug,omitempty"`
+	ID                 int64    `json:"product_id,omitempty"`
+	Name               string   `json:"product_name,omitempty"`
+	Description        string   `json:"product_description,omitempty"`
+	Price              int64    `json:"product_price,omitempty"`
+	PriceFormat        string   `json:"product_price_format,omitempty"`
+	Rating             float32  `json:"rating,omitempty"`
+	ImageURL           string   `json:"product_image,omitempty"`
+	AdditionalImageURL []string `json:"additional_product_image,omitempty"`
 }
 
 func NewConsumer() *Consumer {

@@ -39,7 +39,7 @@ const (
 		product
 	WHERE
 		name like $3
-		AND
+		OR
 		description like $4
 	LIMIT $1
 	OFFSET $2

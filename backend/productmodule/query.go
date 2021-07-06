@@ -37,8 +37,9 @@ const (
 		*
 	FROM
 		product
-	LIMIT $1
-	OFFSET $2
+	WHERE product.name LIKE '%' || $1 || '%' OR product.description LIKE '%' || $1 || '%'
+	LIMIT $2
+	OFFSET $3
 `
 
 	updateProductQuery = `

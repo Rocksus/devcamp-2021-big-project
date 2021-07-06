@@ -37,8 +37,12 @@ const (
 		*
 	FROM
 		product
-	LIMIT $1
-	OFFSET $2
+	WHERE
+		name like $1
+		OR
+		description like $2
+	LIMIT $3
+	OFFSET $4
 `
 
 	updateProductQuery = `

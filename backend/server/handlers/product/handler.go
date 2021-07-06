@@ -2,7 +2,6 @@ package product
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -78,6 +77,8 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
+	timeStart := time.Now()
+
 	var limit int
 	var offset int
 
@@ -93,9 +94,25 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 		offset = 0
 	}
 
-	// TODO: remove the placeholder println and implement this function
-	fmt.Println(limit, offset)
+	name := vars.Get("product_name")
+	description := vars.Get("product_description")
 
+	// TODO: remove the placeholder println and implement this function
+	data := productmodule.GetProductBatchRequest{
+		Name:        name,
+		Description: description,
+		Limit:       limit,
+		Offset:      offset,
+	}
+
+	resp, err := p.product.GetProductBatch(data)
+
+	if err != nil {
+		server.RenderError(w, http.StatusBadRequest, err, timeStart)
+		return
+	}
+
+	server.RenderResponse(w, http.StatusOK, resp, timeStart)
 	return
 }
 

@@ -44,10 +44,16 @@ func (p *Module) GetProduct(id int64) (ProductResponse, error) {
 	return resp, nil
 }
 
-func (p *Module) GetProductBatch(limit int, offset int) ([]ProductResponse, error) {
+func (p *Module) GetProductBatch(data GetProductBatchRequest) ([]ProductResponse, error) {
 	// TODO: implement this
+	resp, err := p.Storage.GetProductBatch(data)
 
-	return nil, nil
+	if err != nil {
+		log.Println("[ProductModule][GetProductBatch] problem getting storage data, err: ", err.Error())
+		return resp, err
+	}
+
+	return resp, nil
 }
 
 func (p *Module) UpdateProduct(id int64, data UpdateProductRequest) (ProductResponse, error) {

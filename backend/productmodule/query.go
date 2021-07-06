@@ -41,6 +41,21 @@ const (
 	OFFSET $2
 `
 
+	getProductBatchByKeywordQuery = `
+	SELECT
+		*
+	FROM
+		product
+	WHERE
+		name
+	LIKE $1
+	OR
+		description
+	LIKE $1
+	LIMIT $2
+	OFFSET $3
+	`
+
 	updateProductQuery = `
 	UPDATE
 		product

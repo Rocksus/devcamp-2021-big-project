@@ -52,7 +52,6 @@ func (p *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	server.RenderResponse(w, http.StatusCreated, resp, timeStart)
-	return
 }
 
 func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +72,6 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	server.RenderResponse(w, http.StatusOK, resp, timeStart)
-	return
 }
 
 func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
@@ -102,7 +100,6 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	server.RenderResponse(w, http.StatusOK, resp, timeStart)
-	return
 }
 
 func (p *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
@@ -136,5 +133,4 @@ func (p *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	server.RenderResponse(w, http.StatusCreated, resp, timeStart)
-	return
 }

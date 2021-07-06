@@ -90,10 +90,11 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 	if err != nil || offset < 0 {
 		offset = 0
 	}
+	name_query := vars.Get("query")
 
 	// TODO: remove the placeholder println and implement this function
 
-	resp, err := p.product.GetProductBatch(limit, offset)
+	resp, err := p.product.GetProductBatch(name_query, limit, offset)
 	if err != nil {
 		server.RenderError(w, http.StatusBadRequest, err, timeStart)
 		return

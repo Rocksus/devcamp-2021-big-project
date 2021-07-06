@@ -78,8 +78,10 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
+	timeStart := time.Now()
 	var limit int
 	var offset int
+	var search string
 
 	var err error
 	// query parameters are not available in mux vars
@@ -92,10 +94,17 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 	if err != nil || offset < 0 {
 		offset = 0
 	}
+	search = vars.Get("search")
 
-	// TODO: remove the placeholder println and implement this function
-	fmt.Println(limit, offset)
+	searchFmt := fmt.Sprintf("%s%v%s", "%", search, "%")
 
+	resp, err := p.product.GetProductBatch(searchFmt, limit, offset)
+	if err != nil {
+		server.RenderError(w, http.StatusBadRequest, err, timeStart)
+		return
+	}
+
+	server.RenderResponse(w, http.StatusCreated, resp, timeStart)
 	return
 }
 

@@ -49,4 +49,23 @@ const (
 	WHERE
 		id=%d
 `
+
+	getProductBatchByName = `
+	SELECT 
+		* 
+	FROM 
+		product 
+	WHERE 
+		name 
+	LIKE 
+		$1 
+	OR 
+		description 
+	LIKE 
+		$2 
+	LIMIT 
+		$3 
+	OFFSET 
+		$4
+`
 )

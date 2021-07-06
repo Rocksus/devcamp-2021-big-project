@@ -17,8 +17,8 @@ func main() {
 		User:     "postgres",
 		Password: "admin",
 		DBName:   "devcamp",
-		Port:     5432,
-		Host:     "db",
+		Port:     9001,
+		Host:     "localhost",
 		SSLMode:  "disable",
 	}
 	db := database.GetDatabaseConnection(dbConfig)

@@ -2,7 +2,6 @@ package product
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -78,8 +77,10 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
+	timeStart := time.Now()
 	var limit int
 	var offset int
+	var keyword string
 
 	var err error
 	// query parameters are not available in mux vars
@@ -93,9 +94,15 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 		offset = 0
 	}
 
-	// TODO: remove the placeholder println and implement this function
-	fmt.Println(limit, offset)
+	keyword = vars.Get("keyword")
 
+	resp, err := p.product.GetProductBatch(limit, offset, keyword)
+	if err != nil {
+		server.RenderError(w, http.StatusBadRequest, err, timeStart)
+		return
+	}
+
+	server.RenderResponse(w, http.StatusOK, resp, timeStart)
 	return
 }
 

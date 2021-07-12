@@ -65,6 +65,12 @@ curl --location --request PUT 'http://localhost:9000/product/1' \
 }'
 ```
 
+Getting Product Data by Name or Description with Limit and Offset
+
+```shell
+curl --location --request GET 'http://localhost:9000/products?search=product&limit=4&offset=3'
+```
+
 ## Code Organization
 
 Code organization will be presented below. Please refer to each folder for a more detailed description.

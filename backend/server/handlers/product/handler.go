@@ -2,10 +2,10 @@ package product
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -80,8 +80,12 @@ func (p *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 	var limit int
 	var offset int
+	var search string
 
+	var resp []productmodule.ProductResponse
 	var err error
+
+	timeStart := time.Now()
 	// query parameters are not available in mux vars
 	vars := r.URL.Query()
 	limit, err = strconv.Atoi(vars.Get("limit"))
@@ -92,10 +96,20 @@ func (p *Handler) GetProductBatch(w http.ResponseWriter, r *http.Request) {
 	if err != nil || offset < 0 {
 		offset = 0
 	}
+	search, err = url.QueryUnescape(vars.Get("search"))
+	if err != nil {
+		search = ""
+	} else {
+		search = "%" + search + "%"
+	}
 
-	// TODO: remove the placeholder println and implement this function
-	fmt.Println(limit, offset)
+	resp, err = p.product.GetProductBatch(search, limit, offset)
+	if err != nil {
+		server.RenderError(w, http.StatusBadRequest, err, timeStart)
+		return
+	}
 
+	server.RenderResponse(w, http.StatusOK, resp, timeStart)
 	return
 }
 
